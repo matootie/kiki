@@ -1,0 +1,31 @@
+name: Python Continuous Integration
+
+on: [push]
+
+jobs:
+  test:
+    name: Test Kiki
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install --upgrade setuptools
+        pip install pipenv
+        pipenv install --dev
+    - name: Lint with pylint
+      run: |
+        pipenv install --dev pylint
+        pipenv run pylint kiki
+    - name: Test with pytest
+      run:
+        pipenv install pytest
+        pytest
