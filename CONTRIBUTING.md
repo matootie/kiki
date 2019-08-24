@@ -22,7 +22,7 @@ Do you have something in mind? Are you looking to submit a feature request, repo
 
 Please make sure that the feature request or bug report you have in mind has not already been sent in, by checking the [issue board](https://github.com/matootie/kiki/issues).
 
-Are you here to help implement a new feature, or fix a bug? Look for any approved issues on the [issue board](https://github.com/matootie/kiki/issues) with labels `help wanted` or `bug`.
+Are you here to help implement a new feature, or fix a bug? Look for any approved issues on the [issue board](https://github.com/matootie/kiki/issues) with labels `help wanted` or `bug`. *Please note that all commits must be signed!*
 
 Please make sure that the work you are trying to do isn't already done and being reviewed by checking any [open pull requests](https://github.com/matootie/kiki/pulls).
 
