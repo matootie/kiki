@@ -1,0 +1,15 @@
+name: Automatically Assign Reviewer
+
+on: [pull_request]
+
+jobs:
+  autoassign:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Assign reviewers
+      uses: kentaro-m/auto-assign@v1.0.0
+      with:
+        addReviewers: true
+        addAssignees: false
+        reviewers:
+          - matootie
