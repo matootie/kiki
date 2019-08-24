@@ -1,6 +1,6 @@
 # Kiki
 
-Kiki is the official Kikiriki Discord server companion chat bot. Kiki is a modular Discord chatbot, using plugins to perform tasks.
+Kiki, the official Kikiriki Discord server companion chat bot, is a modular Discord chatbot, using plugins to perform tasks.
 
 ![License](https://img.shields.io/github/license/matootie/kiki)
 ![Discord](https://img.shields.io/discord/424267188535296010)
