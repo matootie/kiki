@@ -1,0 +1,10 @@
+name: Automatic Merging
+
+on: [pull_request, pull_request_review, status]
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Merge pull requests
+      uses: pascalgn/automerge-action@v0.2.4
