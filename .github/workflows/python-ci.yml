@@ -1,10 +1,10 @@
-name: Python Continuous Integration
+name: Lint check
 
 on: [push]
 
 jobs:
-  test:
-    name: Test Kiki
+  lint:
+    name: Lint Kiki
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -23,9 +23,4 @@ jobs:
         pipenv install --dev
     - name: Lint with pylint
       run: |
-        pipenv install --dev pylint
         pipenv run pylint kiki
-    - name: Test with pytest
-      run:
-        pipenv install pytest
-        pytest
