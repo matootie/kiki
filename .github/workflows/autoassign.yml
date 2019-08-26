@@ -8,6 +8,7 @@ jobs:
     steps:
     - name: Assign reviewers
       uses: kentaro-m/auto-assign@v1.0.0
+      if: ${{ github.actor }} != "matootie"
       with:
         addReviewers: true
         addAssignees: false
