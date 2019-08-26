@@ -8,3 +8,5 @@ jobs:
     steps:
     - name: Merge pull requests
       uses: pascalgn/automerge-action@v0.2.4
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
