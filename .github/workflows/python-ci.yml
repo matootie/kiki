@@ -34,14 +34,14 @@ jobs:
       
     - name: Build Docker image (latest)
       uses: azure/container-actions/docker-login@master
-      with:
-        login-server: ${{ secrets.REGISTRY_URL }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-      run: |
-        docker build . -t kiki:latest
-        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
-        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
+        with:
+          login-server: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - run: |
+          docker build . -t kiki:latest
+          docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
+          docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
         
     - name: Build Docker image (commit ref)
       uses: azure/container-actions/docker-login@master
