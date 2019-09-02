@@ -31,38 +31,31 @@ jobs:
     - name: Lint with pylint
       run: |
         pipenv run pylint kiki
-      
-    - name: Build Docker image (latest)
-      uses: azure/container-actions/docker-login@master
-      run: |
-        docker build . -t kiki:latest
-        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
-        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
-      with:
-        login-server: ${{ secrets.REGISTRY_URL }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
         
-    - name: Build Docker image (commit ref)
-      uses: azure/container-actions/docker-login@master
-      run: |
-        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.sha }}
-        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.sha }}
+    - name: Publish Docker image (latest)
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        login-server: ${{ secrets.REGISTRY_URL }}
+        name: kiki:latest
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ${{ secrets.REGISTRY_URL }}
+    
+    - name: Publish Docker image (commit ref)
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: kiki:${{ github.sha }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ${{ secrets.REGISTRY_URL }}
       if: github.event_name == 'push'
-     
-    - name: Build Docker image (release)
-      uses: azure/container-actions
-      run: |
-        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
-        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
+      
+    - name: Publish Docker image (release)
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        login-server: ${{ secrets.REGISTRY_URL }}
+        name: kiki:${{ github.ref }}
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ${{ secrets.REGISTRY_URL }}
       if: github.event_name == 'release'
       
     - name: Set kubectl context
