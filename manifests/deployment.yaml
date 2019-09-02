@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kiki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kiki
+  template:
+    metadata:
+      labels:
+        app: kiki
+    spec:
+      containers:
+        - name: kiki
+          image: hub.docker.io/matootie/kiki:v1.0.0
+          env:
+            - name: KIKI_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kiki-creds
+                  key: bot-token
+          resources:
+            requests:
+              memory: 128M
+              cpu: 50m
+            limits:
+              memory: 256M
+              cpu: 100m

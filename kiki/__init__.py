@@ -40,6 +40,15 @@ class Basics(commands.Cog):
 
         self.bot = bot
 
+    @commands.command(name="install")
+    async def install(self, ctx, *extensions):
+        """
+        Install any given extensions
+        """
+
+        for extension in extensions:
+            url = f"https://github.com/"
+
     #pylint: disable=unused-argument
     @commands.command(name="reload")
     async def reload(self, ctx, *extensions):
