@@ -34,35 +34,35 @@ jobs:
       
     - name: Build Docker image (latest)
       uses: azure/container-actions/docker-login@master
-        with:
-          login-server: ${{ secrets.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-      - run: |
-          docker build . -t kiki:latest
-          docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
-          docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
-        
-    - name: Build Docker image (commit ref)
-      uses: azure/container-actions/docker-login@master
+      run: |
+        docker build . -t kiki:latest
+        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
+        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
       with:
         login-server: ${{ secrets.REGISTRY_URL }}
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
+        
+    - name: Build Docker image (commit ref)
+      uses: azure/container-actions/docker-login@master
       run: |
         docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.sha }}
         docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.sha }}
+      with:
+        login-server: ${{ secrets.REGISTRY_URL }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       if: github.event_name == 'push'
      
     - name: Build Docker image (release)
       uses: azure/container-actions
+      run: |
+        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
+        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
       with:
         login-server: ${{ secrets.REGISTRY_URL }}
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
-      run: |
-        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
-        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
       if: github.event_name == 'release'
       
     - name: Set kubectl context
