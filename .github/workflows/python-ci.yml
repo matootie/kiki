@@ -1,6 +1,13 @@
-name: Lint check
+name: Continuous Integration
 
-on: [push]
+on:
+  push:
+    branches:
+    - master
+  release:
+    action:
+    - created
+    - prereleased
 
 jobs:
   lint:
@@ -8,16 +15,76 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    
     - name: Setup Python
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
+        
     - name: Install dependencies
       run: |
         pip install --upgrade pip
         pip install --upgrade setuptools
         pip install pipenv
         pipenv install --dev
+        
     - name: Lint with pylint
       run: |
         pipenv run pylint kiki
+      
+    - name: Build Docker image (latest)
+      uses: azure/container-actions/docker-login@master
+      with:
+        login-server: ${{ secrets.REGISTRY_URL }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+      run: |
+        docker build . -t kiki:latest
+        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
+        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
+        
+    - name: Build Docker image (commit ref)
+      uses: azure/container-actions/docker-login@master
+      with:
+        login-server: ${{ secrets.REGISTRY_URL }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+      run: |
+        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.sha }}
+        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.sha }}
+      if: github.event_name == 'push'
+     
+    - name: Build Docker image (release)
+      uses: azure/container-actions
+      with:
+        login-server: ${{ secrets.REGISTRY_URL }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+      run: |
+        docker tag kiki:latest ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
+        docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
+      if: github.event_name == 'release'
+      
+    - name: Set kubectl context
+      uses: azure/k8s-actions/k8s-set-context@master
+      with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+        context: 'cluster'
+        
+    - name: Create Registry secret
+      uses: azure/k8s-actions/k8s-create-secret@master
+      with:
+        container-registry-url: ${{ secrets.REGISTRY_URL }}
+        container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        secret-name: container-registry-secrets
+        
+    - name: Deploy to Kubernetes
+      uses: azure/k8s-actions/k8s-deploy@master
+      with:
+        manifests: |
+          manifests/deployment.yaml
+        images: |
+          ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.sha }}
+        imagepullsecrets: |
+          container-registry-secrets
