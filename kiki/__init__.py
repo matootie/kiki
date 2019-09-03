@@ -46,9 +46,6 @@ class Basics(commands.Cog):
         Install any given extensions
         """
 
-        for extension in extensions:
-            url = f"https://github.com/"
-
     #pylint: disable=unused-argument
     @commands.command(name="reload")
     async def reload(self, ctx, *extensions):
