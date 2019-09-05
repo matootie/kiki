@@ -35,8 +35,15 @@ jobs:
       - name: Log into Docker
         uses: actions/docker/login@master
         env:
+          DOCKER_REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
           DOCKER_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Publish Docker image (latest)
+        uses: actions/docker/cli-multi@master
+        run: |
+          docker build -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
+          docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
       # - name: Publish Docker image (latest)
       #   uses: elgohr/Publish-Docker-Github-Action@master
       #   with:
