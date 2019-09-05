@@ -43,8 +43,10 @@ jobs:
         uses: actions/docker/cli-multi@master
         with:
           args:
-            - docker build -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
-            - docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest
+            [
+              "docker build -t ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest",
+              "docker push ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:latest",
+            ]
       # - name: Publish Docker image (latest)
       #   uses: elgohr/Publish-Docker-Github-Action@master
       #   with:
