@@ -68,13 +68,13 @@ jobs:
       - name: Tag Docker image (release)
         uses: actions/docker/cli-multi@master
         with:
-          args: "tag kiki ${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
+          args: "tag kiki ${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}"
         if: github.event_name == 'release'
 
       - name: Push Docker image (release)
         uses: actions/docker/cli-multi@master
         with:
-          args: "push ${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}
+          args: "push ${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.ref }}"
         if: github.event_name == 'release'
       # - name: Publish Docker image (latest)
       #   uses: elgohr/Publish-Docker-Github-Action@master
