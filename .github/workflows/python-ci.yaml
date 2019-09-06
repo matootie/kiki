@@ -32,16 +32,12 @@ jobs:
         run: |
           pipenv run pylint kiki
 
-      - name: Log into Docker
-        uses: actions/docker/login@master
+      - name: Build and push image
+        uses: pangzineng/Github-Action-One-Click-Docker@master
         env:
           DOCKER_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Build Docker image
-        uses: actions/docker/cli-multi@master
-        with:
-          args: build --tag=kiki .
+          DOCKER_IMAGE_TAG: ${{ github.sha }}
       # - name: Tag Docker image (latest)
       #   uses: actions/docker/cli-multi@master
       #   with:
