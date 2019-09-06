@@ -41,7 +41,7 @@ jobs:
       - name: Build Docker image
         uses: actions/docker/cli-multi@master
         with:
-          args: build --tag=kiki .
+          args: 'build --tag=kiki .'
       # - name: Tag Docker image (latest)
       #   uses: actions/docker/cli-multi@master
       #   with:
