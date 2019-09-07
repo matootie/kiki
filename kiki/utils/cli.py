@@ -25,5 +25,5 @@ def run(token, prefix):
 
     if not token:
         token = os.environ.get("KIKI_TOKEN")
-    
+
     Kiki.new(token=token, prefix=prefix)
