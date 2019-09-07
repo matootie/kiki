@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: kiki
-          image: hub.docker.io/matootie/kiki:v1.0.0
+          image: registry.hub.docker.io/matootie/kiki
           env:
             - name: KIKI_TOKEN
               valueFrom:
