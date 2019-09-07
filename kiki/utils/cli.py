@@ -2,6 +2,7 @@
 Kiki cli tools.
 """
 
+import os
 import click
 
 from kiki import Kiki
@@ -15,11 +16,14 @@ def cli():
 
 
 @cli.command()
-@click.option("-t", "--token", required=True, help="Discord bot secret token.")
+@click.option("-t", "--token", help="Discord bot secret token.")
 @click.option("-p", "--prefix", help="Command prefix for the bot.")
 def run(token, prefix):
     """
     Run the bot.
     """
 
+    if not token:
+        token = os.environ.get("KIKI_TOKEN")
+    
     Kiki.new(token=token, prefix=prefix)
