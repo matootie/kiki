@@ -10,6 +10,11 @@ from discord.ext.commands.errors import NoEntryPointError, ExtensionNotFound
 from click import echo
 
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INSTALLED_PLUGINS = [
+    'ping', ]
+
+
 class Kiki(commands.AutoShardedBot):
     """
     The Kiki bot, subclass of AutoShardedClient.
@@ -17,22 +22,20 @@ class Kiki(commands.AutoShardedBot):
 
     #pylint: disable=attribute-defined-outside-init
     @staticmethod
-    def new(
-            token: str = None,
-            prefix: str = None,
-            plugin_directory: str = None,
-            **kwargs):
+    def new(token: str = None, **kwargs):
         """
         Run an instance of the bot.
         """
 
-        if not prefix:
-            prefix = "."
-        kiki = Kiki(
-            command_prefix=prefix,
-            **kwargs)
+        kiki = Kiki(command_prefix=".", **kwargs)
         kiki.add_cog(Basics(kiki))
-        kiki.plugin_directory = plugin_directory
+
+        for plugin in INSTALLED_PLUGINS:
+            try:
+                kiki.load_extension(f"plugins.{plugin}")
+            except (NoEntryPointError, ExtensionNotFound):
+                echo(f"Load crashed due to plugin: '{plugin}'")
+                return
 
         try:
             kiki.run(token)
@@ -51,24 +54,6 @@ class Basics(commands.Cog):
         """
 
         self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        """
-        Load extensions on startup.
-        """
-
-        for plugin in os.listdir(self.bot.plugin_directory):
-            try:
-                self.bot.load_extension(plugin)
-            except (NoEntryPointError, ExtensionNotFound):
-                echo(f"\"{plugin}\" is not a valid plugin.")
-
-    @commands.command(name="install")
-    async def install(self, ctx, *extensions):
-        """
-        Install any given extensions.
-        """
 
     #pylint: disable=unused-argument
     @commands.command(name="reload")
