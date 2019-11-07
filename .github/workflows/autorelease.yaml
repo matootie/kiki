@@ -2,9 +2,7 @@ name: Continuous Delivery
 
 on:
   release:
-    action:
-      - created
-      - prereleased
+    types: [published]
 
 jobs:
   release:
@@ -19,7 +17,7 @@ jobs:
           DOCKER_REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
           DOCKER_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-          DOCKER_IMAGE_TAG: ${GITHUB_REF:11}
+          DOCKER_IMAGE_TAG: ${{ github.sha }}
 
       - name: Save DigitalOcean kubeconfig
         uses: digitalocean/action-doctl@master
@@ -47,6 +45,6 @@ jobs:
           manifests: |
             manifests/release-deployment.yaml
           images: |
-            ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${GITHUB_REF:11}
+            ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/kiki:${{ github.sha }}
           imagepullsecrets: |
             container-registry-secrets
