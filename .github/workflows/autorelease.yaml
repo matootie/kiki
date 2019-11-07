@@ -27,7 +27,7 @@ jobs:
         env:
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DO_TOKEN }}
         with:
-          args: kubernetes cluster kubeconfig show k8s-cluster-name > $GITHUB_WORKSPACE/.kubeconfig
+          args: kubernetes cluster kubeconfig show do-tor1-cluster > $GITHUB_WORKSPACE/.kubeconfig
 
       - name: Set kubectl context
         uses: azure/k8s-actions/k8s-set-context@master
