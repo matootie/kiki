@@ -11,14 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Set env
-        run: echo ::set-env name=IMAGE_TAG::$(echo ${GITHUB_REF:10})
-
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: matootie/kiki/kiki
-          username: ${{ secrets.REGISTRY_USERNAME }}
+          username: matootie
           password: ${{ secrets.REGISTRY_PASSWORD }}
           registry: docker.pkg.github.com
           tag_names: true
@@ -38,8 +35,8 @@ jobs:
       - name: Create Registry secret
         uses: azure/k8s-actions/k8s-create-secret@master
         with:
-          container-registry-url: ${{ secrets.REGISTRY_URL }}
-          container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          container-registry-url: docker.pkg.github.com
+          container-registry-username: matootie
           container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
           secret-name: container-registry-secrets
 
@@ -49,6 +46,6 @@ jobs:
           manifests: |
             manifests/release-deployment.yaml
           images: |
-            docker.pkg.github.com/matootie/kiki/kiki:${IMAGE_TAG}
+            docker.pkg.github.com/matootie/kiki/kiki:${GITHUB_REF:10}
           imagepullsecrets: |
             container-registry-secrets
