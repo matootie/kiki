@@ -7,6 +7,7 @@ import os
 from discord.ext import commands
 from discord.errors import LoginFailure
 from discord.ext.commands.errors import NoEntryPointError, ExtensionNotFound
+from discord.utils import find
 from click import echo
 
 
@@ -28,6 +29,7 @@ class Kiki(commands.AutoShardedBot):
         """
 
         kiki = Kiki(command_prefix=".", **kwargs)
+        kiki._primary_server_id = "558027628502712330"
         kiki.add_cog(Basics(kiki))
 
         for plugin in INSTALLED_PLUGINS:
@@ -41,6 +43,14 @@ class Kiki(commands.AutoShardedBot):
             kiki.run(token)
         except LoginFailure:
             echo("Improper token.")
+
+    @property
+    def primary_server(self):
+        """
+        Return an instance of the primary server.
+        """
+
+        return find(lambda m: m.id == self._primary_server_id, self.guilds)
 
 
 class Basics(commands.Cog):
