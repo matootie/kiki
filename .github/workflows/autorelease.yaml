@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Publish to Registry
+      - name: Publish Package to GitHub Package Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: matootie/kiki/kiki
@@ -20,25 +20,17 @@ jobs:
           registry: docker.pkg.github.com
           tag_names: true
 
-      - name: Save DigitalOcean kubeconfig
+      - name: Save DigitalOcean Kubernetes Config
         uses: digitalocean/action-doctl@master
         env:
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         with:
           args: kubernetes cluster kubeconfig show cluster > $GITHUB_WORKSPACE/.kubeconfig
 
-      - name: Set kubectl context
+      - name: Set Kubernetes Context
         uses: azure/k8s-actions/k8s-set-context@master
         with:
           kubeconfig: '$(cat ${GITHUB_WORKSPACE}/.kubeconfig)'
-
-      - name: Create Registry secret
-        uses: azure/k8s-actions/k8s-create-secret@master
-        with:
-          container-registry-url: docker.pkg.github.com
-          container-registry-username: matootie
-          container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-          secret-name: container-registry-secrets
 
       - name: Deploy to Kubernetes
         uses: azure/k8s-actions/k8s-deploy@master
