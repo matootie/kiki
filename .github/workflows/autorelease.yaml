@@ -30,6 +30,7 @@ jobs:
       - name: Set kubectl context
         uses: azure/k8s-actions/k8s-set-context@master
         with:
+          kubeconfig: '${cat $GITHUB_WORKSPACE/.kubeconfig}'
           context: 'do-tor1-cluster'
 
       - name: Create Registry secret
