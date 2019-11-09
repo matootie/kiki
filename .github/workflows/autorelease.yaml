@@ -28,12 +28,11 @@ jobs:
         with:
           args: kubernetes cluster kubeconfig show cluster > /github/workspace/.kubeconfig
 
-      - name: Deploy to Kubernetes
-        uses: docker://lachlanevenson/k8s-kubectl
-        with:
-          args: --kubeconfig=/github/workspace/.kubeconfig set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
+      - name: Set up kubectl
+        uses: matootie/action-kubectl@master
+
+      - name: Update Deployment
+        run: kubectl --kubeconfig=/github/workspace/.kubeconfig set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
 
       - name: Verify Deployment
-        uses: docker://lachlanevenson/k8s-kubectl
-        with:
-          args: --kubeconfig=/github/workspace/.kubeconfig rollout status deployment.apps/kiki
+        run: kubectl --kubeconfig=/github/workspace/.kubeconfig rollout status deployment.apps/kiki
