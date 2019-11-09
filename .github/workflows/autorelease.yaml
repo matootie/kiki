@@ -26,14 +26,14 @@ jobs:
         env:
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         with:
-          args: kubernetes cluster kubeconfig show cluster > $GITHUB_WORKSPACE/.kubeconfig
+          args: kubernetes cluster kubeconfig show cluster > /github/workspace/.kubeconfig
 
       - name: Deploy to Kubernetes
         uses: docker://lachlanevenson/k8s-kubectl
         with:
-          args: --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
+          args: --kubeconfig=/github/workspace/.kubeconfig set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
 
       - name: Verify Deployment
         uses: docker://lachlanevenson/k8s-kubectl
         with:
-          args: --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig rollout status deployment.apps/kiki
+          args: --kubeconfig=/github/workspace/.kubeconfig rollout status deployment.apps/kiki
