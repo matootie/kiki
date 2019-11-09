@@ -1,4 +1,5 @@
 .vscode/
+manifests/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

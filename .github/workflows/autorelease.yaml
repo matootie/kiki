@@ -28,17 +28,12 @@ jobs:
         with:
           args: kubernetes cluster kubeconfig show cluster > $GITHUB_WORKSPACE/.kubeconfig
 
-      - name: Set Kubernetes Context
-        uses: azure/k8s-actions/k8s-set-context@master
-        with:
-          kubeconfig: '$(cat ${GITHUB_WORKSPACE}/.kubeconfig)'
-
       - name: Deploy to Kubernetes
-        uses: azure/k8s-actions/k8s-deploy@master
+        uses: docker://lachlanevenson/k8s-kubectl
         with:
-          manifests: |
-            manifests/deployment.yaml
-          images: |
-            docker.pkg.github.com/matootie/kiki/kiki:${GITHUB_REF:10}
-          imagepullsecrets: |
-            container-registry-secrets
+          args: --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
+
+      - name: Verify Deployment
+        uses: docker://lachlanevenson/k8s-kubectl
+        with:
+          args: --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig rollout status deployment.apps/kiki

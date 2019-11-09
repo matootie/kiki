@@ -12,9 +12,11 @@ spec:
       labels:
         app: kiki
     spec:
+      imagePullSecrets:
+        - name: container-registry-secrets
       containers:
         - name: kiki
-          image: docker.pkg.github.com/matootie/kiki
+          image: docker.pkg.github.com/matootie/kiki/kiki:latest
           env:
             - name: KIKI_TOKEN
               valueFrom:
