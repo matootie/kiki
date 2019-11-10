@@ -40,6 +40,8 @@ class WelcomeRole(commands.Cog):
                     await ctx.send("Invalid argument. Must be 'on' of 'off'")
             else:
                 await ctx.send("You aren't authorized to perform this action")
+        else:
+            await ctx.send("Invalid server.")
 
 
     @commands.Cog.listener()
