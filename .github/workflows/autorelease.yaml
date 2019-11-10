@@ -28,4 +28,4 @@ jobs:
           clusterName: cluster
 
       - name: Update Deployment
-        run: kubectl set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
+        run: kubectl set image deployment.apps/kiki kiki=docker.pkg.github.com/matootie/kiki/kiki:${GITHUB_REF:10}
