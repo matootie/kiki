@@ -22,17 +22,10 @@ jobs:
           tag_names: true
 
       - name: Save DigitalOcean Kubernetes Config
-        uses: digitalocean/action-doctl@master
-        env:
-          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        uses: uniappca/dokube@v1.0.0
         with:
-          args: kubernetes cluster kubeconfig show cluster > /github/workspace/.kubeconfig
-
-      - name: Set up kubectl
-        uses: matootie/action-kubectl@master
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          cluster: cluster
 
       - name: Update Deployment
-        run: kubectl --kubeconfig=/github/workspace/.kubeconfig set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
-
-      - name: Verify Deployment
-        run: kubectl --kubeconfig=/github/workspace/.kubeconfig rollout status deployment.apps/kiki
+        run: kubectl set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
