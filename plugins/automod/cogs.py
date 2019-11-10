@@ -1,5 +1,6 @@
 from discord.ext import commands
 from discord.utils import find
+from discord import Permissions
 
 
 class WelcomeRole(commands.Cog):
@@ -15,21 +16,22 @@ class WelcomeRole(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def tempadmin(self, arg, ctx):
+    async def tempadmin(self, ctx, arg):
         """
         Grant temporary admin to matootie.
         """
 
-        role = find(lambda x: x.name == "matootie")
-        if arg == "on":
-            await role.permissions.update(
-                administrator=True)
-        elif arg == "off":
-            await role.permissions.update(
-                administrator=False)
-        else:
-            await ctx.send(
-                "Invalid argument. Must be 'on' of 'off'")
+        role = find(lambda x: x.name == "matootie", ctx.message.channel.guild.roles)
+        if role:
+            if arg == "on":
+                await role.permissions.update(
+                    administrator=True)
+            elif arg == "off":
+                await role.permissions.update(
+                    administrator=False)
+            else:
+                await ctx.send(
+                    "Invalid argument. Must be 'on' of 'off'")
 
 
     @commands.Cog.listener()
