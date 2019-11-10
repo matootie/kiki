@@ -19,4 +19,4 @@ def setup(bot):
     Set up plugin.
     """
 
-    bot.add_command(hello)
+    bot.add_command(ping)
