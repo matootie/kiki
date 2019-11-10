@@ -25,7 +25,7 @@ jobs:
         uses: uniappca/dokube@v1.0.0
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          cluster: cluster
+          clusterName: cluster
 
       - name: Update Deployment
         run: kubectl set image deployment.apps/kiki kiki=kiki:${GITHUB_REF:10}
