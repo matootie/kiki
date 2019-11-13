@@ -12,14 +12,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v1
 
-      - name: Build and Publish Package to GitHub Package Registry
-        uses: elgohr/Publish-Docker-Github-Action@master
+      - name: Publish Image
+        id: publish-image
+        uses: matootie/github-docker@v1.0.0
         with:
-          name: matootie/kiki/kiki
           username: matootie
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-          registry: docker.pkg.github.com
-          tag_names: true
+          personalAccessToken: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Save DigitalOcean Kubernetes Config
         uses: uniappca/dokube@v1.0.0
@@ -28,4 +26,4 @@ jobs:
           clusterName: cluster
 
       - name: Update Deployment
-        run: kubectl set image deployment.apps/kiki kiki=docker.pkg.github.com/matootie/kiki/kiki:${GITHUB_REF:10}
+        run: kubectl set image deployment.apps/kiki kiki=${{ steps.publish-image.outputs.imageURL }}
