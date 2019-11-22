@@ -14,13 +14,13 @@ jobs:
 
       - name: Publish Image
         id: publish-image
-        uses: matootie/github-docker@v1.0.0
+        uses: matootie/github-docker@v1.0.1
         with:
           username: matootie
           personalAccessToken: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Save DigitalOcean Kubernetes Config
-        uses: uniappca/dokube@v1.0.0
+        uses: matootie/dokube@v1.1.2
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           clusterName: cluster
