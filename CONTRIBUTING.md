@@ -4,7 +4,7 @@ Hi! Thank you for showing interest in helping improve the Kiki project!
 
 The following is a set of guidelines to follow when contributing. These are not rules, so above all use your best judgement, and follow these when you feel you are lost.
 
-### Table of Contents
+## Table of Contents
 
 [Code of Conduct](#code-of-conduct)
 
@@ -14,7 +14,7 @@ The following is a set of guidelines to follow when contributing. These are not 
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report any unacceptable behaviour to [mateja@lasan.ca](mailto:mateja@lasan.ca).
+This project and everyone participating in it is governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report any unacceptable behaviour to [Mateja](mailto:mateja@lasan.ca).
 
 ## Start Contributing
 

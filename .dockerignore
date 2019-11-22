@@ -2,8 +2,8 @@
 LICENSE
 .github/
 .gitignore
+.git/
+.vscode/
 
 .dockerignore
 Dockerfile
-
-tests/
