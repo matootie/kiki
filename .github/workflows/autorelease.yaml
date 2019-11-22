@@ -20,10 +20,11 @@ jobs:
           personalAccessToken: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Save DigitalOcean Kubernetes Config
-        uses: matootie/dokube@v1.1.2
+        uses: matootie/dokube@v1.2.0
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           clusterName: cluster
+          namespace: kiki
 
       - name: Update Deployment
         run: kubectl set image deployment.apps/kiki kiki=${{ steps.publish-image.outputs.imageURL }}
