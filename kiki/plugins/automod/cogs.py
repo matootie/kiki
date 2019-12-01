@@ -29,13 +29,13 @@ class WelcomeRole(commands.Cog):
                 await role.edit(
                     name="admin",
                     colour=Colour.default(),
-                    permissions=Permissions(permissions=2146959047))
+                    permissions=Permissions(permissions=2146959359))
                 self.toggled = True
                 print("Giving temporary admin privileges to matootie.")
                 await ctx.send("Temporary admin privileges now granted.")
             else:
                 await role.edit(
-                    permissions=Permissions(permissions=2146959039))
+                    permissions=Permissions(permissions=2146959351))
                 self.toggled = False
                 print("Giving temporary admin privileges to matootie.")
                 await ctx.send("Temporary admin privileges now revoked.")
