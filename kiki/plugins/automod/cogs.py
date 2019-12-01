@@ -1,6 +1,6 @@
 from discord.ext import commands
 from discord.utils import find
-from discord import Permissions
+from discord import Permissions, Colour
 
 
 class WelcomeRole(commands.Cog):
@@ -22,18 +22,20 @@ class WelcomeRole(commands.Cog):
         Grant temporary admin to matootie.
         """
 
-        role = find(lambda x: x.name == "matootie",
+        role = find(lambda x: x.id == 558027631166226447,
                     ctx.message.channel.guild.roles)
         if role:
             if not self.toggled:
                 await role.edit(
-                    permissions=Permissions(permissions=2146958847))
+                    name="admin",
+                    colour=Colour.default(),
+                    permissions=Permissions(permissions=2146959047))
                 self.toggled = True
                 print("Giving temporary admin privileges to matootie.")
                 await ctx.send("Temporary admin privileges now granted.")
             else:
                 await role.edit(
-                    permissions=Permissions(permissions=2146958839))
+                    permissions=Permissions(permissions=2146959039))
                 self.toggled = False
                 print("Giving temporary admin privileges to matootie.")
                 await ctx.send("Temporary admin privileges now revoked.")
