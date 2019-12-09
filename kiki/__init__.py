@@ -25,7 +25,7 @@ class Kiki(commands.AutoShardedBot):
         kiki = Kiki(command_prefix=".", **kwargs)
 
         # Load extensions.
-        kiki.load_extension('kiki.plugins.ping')
+        kiki.load_extension('kiki.plugins.info')
         kiki.load_extension('kiki.plugins.automod')
 
         # Run the bot.

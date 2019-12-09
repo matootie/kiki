@@ -10,6 +10,9 @@ autopep8 = "*"
 [packages]
 discord-py = "*"
 click = "*"
+redis = "*"
+requests = "*"
+mcstatus = "*"
 
 [requires]
 python_version = "3.7"
