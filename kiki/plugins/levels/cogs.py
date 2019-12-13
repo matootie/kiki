@@ -104,13 +104,12 @@ class Levels(commands.Cog):
 
         xp = int(db.hget(f"levels:user:{user.id}", "xp"))
         level, to_next = self.get_level(xp)
-        users = [(x, db.hget(x, "xp"))
+
+        users = [(x, int(db.hget(x, "xp")))
                  for x in db.scan_iter(match="levels:user:*")]
 
-        def key(item):
-            return item[1]
         rankings = [int(x[0][12:])
-                    for x in sorted(users, key=key, reverse=True)]
+                    for x in sorted(users, key=lambda x: x[1], reverse=True)]
 
         rank = rankings.index(user.id) + 1
 
