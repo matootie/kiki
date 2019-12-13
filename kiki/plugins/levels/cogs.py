@@ -111,7 +111,7 @@ class Levels(commands.Cog):
         rankings = [int(x[0][12:])
                     for x in sorted(users, key=lambda x: x[1], reverse=True)]
 
-        rank = rankings.index(user.id) + 1
+        user_rank = rankings.index(user.id) + 1
 
         # Set up the embed.
         embed = Embed(
@@ -127,7 +127,7 @@ class Levels(commands.Cog):
 
         embed.add_field(
             name="Rank",
-            value=f"#{rank}")
+            value=f"#{user_rank}")
 
         embed.add_field(
             name="Current level",
