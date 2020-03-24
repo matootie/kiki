@@ -10,6 +10,7 @@ flake8 = "*"
 
 [packages]
 asyncpg = "*"
+psycopg2-binary = "*"
 discord-py = "*"
 click = "*"
 requests = "*"
