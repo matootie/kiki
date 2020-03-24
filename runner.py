@@ -1,3 +1,7 @@
+"""
+Main runner of the bot.
+"""
+
 from kiki.utils.cli import cli
 
 

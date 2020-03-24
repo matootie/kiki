@@ -1,5 +1,5 @@
 """
-Ping plugin.
+Automod plugin.
 """
 
 from .cogs import WelcomeRole

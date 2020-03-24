@@ -3,31 +3,13 @@ Database utilities.
 """
 
 import os
+from databases import Database
+from databases import DatabaseURL
+from sqlalchemy import MetaData
 
-from redis import Redis
-from redis.exceptions import ConnectionError
 
-
-def get_db(
-        host=os.environ.get("REDIS_HOST", "localhost"),
-        port=os.environ.get("REDIS_PORT", "6379"),
-        db=os.environ.get("REDIS_DB", "0"),
-        password=os.environ.get("REDIS_PASS", None),
-        decode_responses=True):
-    """
-    Get a connection to the database.
-    """
-
-    redis = Redis(
-        host=host,
-        port=port,
-        db=db,
-        password=password,
-        decode_responses=decode_responses)
-
-    try:
-        redis.info(section="stats")
-    except (ConnectionError):
-        return None
-
-    return redis
+# Establish an instance of the database, and SQLAlchemy metadata
+# for use with the ORM.
+_db_url = DatabaseURL(os.environ["DATABASE_URL"])
+database = Database(_db_url)
+metadata = MetaData()
