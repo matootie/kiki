@@ -10,6 +10,13 @@ from sqlalchemy import MetaData
 
 # Establish an instance of the database, and SQLAlchemy metadata
 # for use with the ORM.
-_db_url = DatabaseURL(os.environ["DATABASE_URL"])
+_POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+_POSTGRES_USER = os.environ["POSTGRES_USER"]
+_POSTGRES_PASS = os.environ["POSTGRES_PASS"]
+_POSTGRES_NAME = os.environ["POSTGRES_NAME"]
+
+_url_string = f"postgresql://{_POSTGRES_USER}:{_POSTGRES_PASS}@{_POSTGRES_HOST}/{_POSTGRES_NAME}"
+
+_db_url = DatabaseURL(url=_url_string)
 database = Database(_db_url)
 metadata = MetaData()

@@ -23,5 +23,4 @@ def run():
 
     # Start a new instance of Kiki.
     Kiki.new(
-        token=os.environ.get("KIKI_TOKEN"),
-        db_url=os.environ.get("DATABASE_URL"))
+        token=os.environ.get("KIKI_TOKEN"))

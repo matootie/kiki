@@ -17,7 +17,7 @@ class Kiki(commands.Bot):
     """
 
     @staticmethod
-    def new(token: str = None, db_url: str = None, **kwargs):
+    def new(token: str = None, **kwargs):
         """
         Run an instance of the bot.
         """
