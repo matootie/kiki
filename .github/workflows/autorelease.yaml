@@ -10,20 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Publish Image
         id: publish-image
-        uses: matootie/github-docker@v1.0.1
+        uses: matootie/github-docker@v2.2.2
         with:
-          username: matootie
-          personalAccessToken: ${{ secrets.REGISTRY_PASSWORD }}
+          accessToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save DigitalOcean Kubernetes Config
         uses: matootie/dokube@v1.2.0
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          clusterName: cluster
+          clusterName: universe
           namespace: kiki
 
       - name: Update Deployment

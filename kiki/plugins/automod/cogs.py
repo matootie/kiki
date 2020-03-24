@@ -1,3 +1,7 @@
+"""
+Automod cogs.
+"""
+
 from discord.ext import commands
 from discord.utils import find
 from discord import Permissions, Colour
@@ -46,8 +50,11 @@ class WelcomeRole(commands.Cog):
         Grant default role on join.
         """
 
+        # Find the folk role within the guild.
         guild = member.guild
         role = find(lambda x: x.name == "folk", guild.roles)
+
+        # Grant it to the new user.
         if role:
             await member.add_roles(
                 role,

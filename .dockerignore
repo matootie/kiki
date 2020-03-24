@@ -4,6 +4,8 @@ LICENSE
 .gitignore
 .git/
 .vscode/
+.env
+manifests/
 
 .dockerignore
 Dockerfile

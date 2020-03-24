@@ -1,5 +1,5 @@
 """
-Kiki cli tools.
+Kiki CLI tools.
 """
 
 import os
@@ -21,4 +21,7 @@ def run():
     Run the bot.
     """
 
-    Kiki.new(token=os.environ.get("KIKI_TOKEN"))
+    # Start a new instance of Kiki.
+    Kiki.new(
+        token=os.environ.get("KIKI_TOKEN"),
+        db_url=os.environ.get("DATABASE_URL"))
