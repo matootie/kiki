@@ -9,6 +9,7 @@ autopep8 = "*"
 flake8 = "*"
 
 [packages]
+asyncpg = "*"
 discord-py = "*"
 click = "*"
 requests = "*"
