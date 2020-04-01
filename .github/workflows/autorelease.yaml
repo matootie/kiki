@@ -22,7 +22,7 @@ jobs:
         uses: matootie/dokube@v1.2.0
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          clusterName: universe
+          clusterName: yoiksoft
           namespace: kiki
 
       - name: Update Deployment
