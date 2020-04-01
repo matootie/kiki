@@ -15,7 +15,7 @@ spec:
         app: kiki
     spec:
       containers:
-        - image: docker.pkg.github.com/matootie/kiki/kiki
+        - image: docker.pkg.github.com/matootie/kiki/kiki:v0.6.5-alpha
           name: kiki
           resources:
             requests:
@@ -28,14 +28,14 @@ spec:
             - name: POSTGRES_HOST
               value: postgres
             - name: POSTGRES_USER
-              value: kiki
+              value: postgres
             - name: POSTGRES_PASS
               valueFrom:
                 secretKeyRef:
                   name: kiki-secrets
                   key: postgres-pass
             - name: POSTGRES_NAME
-              value: kiki
+              value: postgres
             - name: KIKI_TOKEN
               valueFrom:
                 secretKeyRef:

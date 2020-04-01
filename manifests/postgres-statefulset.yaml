@@ -27,8 +27,6 @@ spec:
               cpu: "50m"
               memory: "150M"
           env:
-            - name: POSTGRES_USER
-              value: kiki
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
