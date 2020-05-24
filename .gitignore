@@ -1,5 +1,5 @@
 .vscode/
-manifests/secrets/
+manifests/secret*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

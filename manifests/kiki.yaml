@@ -42,4 +42,4 @@ spec:
                   name: kiki-secrets
                   key: token
       imagePullSecrets:
-        - name: github-docker
+        - name: gh-registry

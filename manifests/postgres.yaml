@@ -1,3 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres
+  namespace: kiki
+spec:
+  selector:
+    app: postgres
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
