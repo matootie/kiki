@@ -23,4 +23,4 @@ def run():
 
     # Start a new instance of Kiki.
     Kiki.new(
-        token=os.environ.get("KIKI_TOKEN"))
+        token=os.environ["KIKI_TOKEN"])
