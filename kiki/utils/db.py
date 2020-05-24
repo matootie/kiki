@@ -12,7 +12,7 @@ from sqlalchemy import MetaData
 # for use with the ORM.
 _PG_H = os.environ["POSTGRES_HOST"]
 _PG_U = os.environ["POSTGRES_USER"]
-_PG_P = os.environ["POSTGRES_PASS"]
+_PG_P = os.environ["POSTGRES_PASS"].rstrip("\n")
 _PG_N = os.environ["POSTGRES_NAME"]
 
 _url_string = f"postgresql://{_PG_U}:{_PG_P}@{_PG_H}:5432/{_PG_N}"
