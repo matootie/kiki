@@ -2,13 +2,12 @@
 Main functions of the Kiki bot, including the Kiki bot.
 """
 
+from socket import gaierror
 from discord.ext import commands
 from discord.errors import LoginFailure
 from discord.ext.commands.errors import CommandNotFound
+from aioredis import create_redis_pool
 from click import echo
-from sqlalchemy import create_engine
-
-from kiki.utils.db import database, metadata
 
 
 class Kiki(commands.Bot):
@@ -16,41 +15,32 @@ class Kiki(commands.Bot):
     The Kiki bot.
     """
 
-    @staticmethod
-    def new(token: str = None, **kwargs):
+    def __init__(self, command_prefix: str = ".", **kwargs):
         """
-        Run an instance of the bot.
+        Initialize the custom bot.
         """
 
-        # Initialize the bot.
-        kiki = Kiki(command_prefix=".", **kwargs)
+        self.redis_host = kwargs.get("redis_host")
+        self.redis = None
 
-        # Load extensions.
-        kiki.load_extension("kiki.plugins.info")
-        kiki.load_extension("kiki.plugins.automod")
-        kiki.load_extension("kiki.plugins.levels")
+        super().__init__(command_prefix=command_prefix, **kwargs)
 
-        # Initialize the database after all plugin
-        # models have been registered.
-        engine = create_engine(str(database.url))
-        metadata.create_all(engine)
-
-        # Run the bot.
-        try:
-            kiki.run(token)
-        except LoginFailure:
-            echo("Improper token.")
+        self.load_extension("kiki.plugins.info")
+        self.load_extension("kiki.plugins.automod")
+        self.load_extension("kiki.plugins.levels")
 
     async def on_ready(self):
         """
         This event is called when the bot is fully ready.
         """
 
-        # Establish a database connection.
-        try:
-            await database.connect()
-        except AssertionError:
-            echo("Database already connected. Skipping.")
+        if self.redis_host:
+            try:
+                self.redis = await create_redis_pool(
+                    self.redis_host,
+                    encoding="utf-8")
+            except gaierror:
+                self.redis = None
         echo("Ready.")
 
     async def on_command_error(self, context, exception):

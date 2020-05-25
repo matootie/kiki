@@ -10,9 +10,6 @@ from discord.ext import commands
 from discord import Message
 from discord import User as DiscordUser
 from discord import Embed
-from orm.exceptions import NoMatch
-
-from .models import User
 
 
 class Levels(commands.Cog):
@@ -28,18 +25,6 @@ class Levels(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def enrol(self, ctx):
-        """
-        Enrol in the experience system.
-        """
-
-        # Create a new user entry in the database.
-        await User.objects.create(id=str(ctx.author.id), experience=0)
-
-        # Sent feedback.
-        await ctx.send("Welcome to the experience system. Start chatting!")
-
-    @commands.command()
     async def rank(self, ctx, user: typing.Optional[DiscordUser]):
         """
         Show the users ranking stats.
@@ -49,17 +34,25 @@ class Levels(commands.Cog):
         if not user:
             user = ctx.author
 
-        # Get the user instance from the database.
-        try:
-            db_user = await User.objects.get(id=str(user.id))
-        except NoMatch:
-            await ctx.send("You are not enrolled in the experience system. \
-                Type `.enrol` to begin.")
+        redis = self.bot.redis
+        if not redis:
+            await ctx.send("Database connection is down. Use `.info` to view the current status sheet.")
             return
 
-        # Fetch the data.
-        level = db_user.level
-        total = db_user.experience
+        total = await redis.get(f"xp:{user.id}")
+
+        if not total:
+            total = 0
+
+        level = 0
+        xp = int(total)
+        while True:
+            needed = 5 * (level ** 2) + 50 * level + 100
+            if xp - needed >= 0:
+                xp -= needed
+                level += 1
+            else:
+                break
 
         # Set up the embed.
         embed = Embed(
@@ -89,17 +82,17 @@ class Levels(commands.Cog):
         channels.
         """
 
-        # Calculate the xp to award.
-        xp_to_gain = random.randint(5, 15)
+        redis = self.bot.redis
+        user = message.author.id
 
-        # Get the user instance from the database.
-        try:
-            user = await User.objects.get(id=str(message.author.id))
-        except NoMatch:
-            return
-
-        # Calculate the users new experience.
-        xp = user.experience + xp_to_gain
-
-        # Apply changes.
-        await user.update(experience=xp)
+        if redis:
+            blocked = await redis.exists(f"cd:{user}")
+            if not blocked:
+                xp_to_gain = random.randint(5, 15)
+                await redis.incrby(
+                    f"xp:{user}",
+                    xp_to_gain)
+                await redis.set(
+                    f"cd:{user}",
+                    "true",
+                    expire=30)

@@ -25,17 +25,8 @@ spec:
               cpu: "100m"
               memory: "100M"
           env:
-            - name: POSTGRES_HOST
-              value: postgres
-            - name: POSTGRES_USER
-              value: postgres
-            - name: POSTGRES_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: kiki-secrets
-                  key: postgres-pass
-            - name: POSTGRES_NAME
-              value: postgres
+            - name: REDIS_URL
+              value: "redis://redis"
             - name: KIKI_TOKEN
               valueFrom:
                 secretKeyRef:

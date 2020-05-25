@@ -21,6 +21,12 @@ def run():
     Run the bot.
     """
 
-    # Start a new instance of Kiki.
-    Kiki.new(
-        token=os.environ["KIKI_TOKEN"])
+    try:
+        token = os.environ["KIKI_TOKEN"]
+    except KeyError:
+        click.error_message("You must specify the bot token under KIKI_TOKEN.")
+
+    redis_host = os.environ.get("REDIS_URL")
+
+    kiki = Kiki(redis_host=redis_host)
+    kiki.run(token)
