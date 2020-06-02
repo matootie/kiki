@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "dc6db287c24dfbadede15390e1c7dff1242cc16b5e139718ccec3fb657b7a83a"
+            "sha256": "af59eabadff939cc5600a612e7d52b636d3482e7b177a1dbb665caf566dba6aa"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -235,6 +235,16 @@
             "index": "pypi",
             "version": "==2.8.5"
         },
+        "pyenchant": {
+            "hashes": [
+                "sha256:8ca419921e79022b344581ef7baf2e23af5c20b3e56b2f3d5a0448bd5bf2662e",
+                "sha256:997465ab1f0dc9900b3bde0a1998c62ac08e64cc9a0870865d50de1e7d4b5afa",
+                "sha256:ce0915d7acd771fde6e8c2dce8ad0cb0e6f7c4fa8430cc96e3e7134e99aeb12f",
+                "sha256:fd490efd7ce46e461cbd905bf6e2fdd540d85f43973b296a743b4591bfbcca60"
+            ],
+            "index": "pypi",
+            "version": "==3.1.1"
+        },
         "requests": {
             "hashes": [
                 "sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee",
@@ -349,10 +359,10 @@
         },
         "autopep8": {
             "hashes": [
-                "sha256:152fd8fe47d02082be86e05001ec23d6f420086db56b17fc883f3f965fb34954"
+                "sha256:60fd8c4341bab59963dafd5d2a566e94f547e660b9b396f772afe67d8481dbf0"
             ],
             "index": "pypi",
-            "version": "==1.5.2"
+            "version": "==1.5.3"
         },
         "flake8": {
             "hashes": [

@@ -14,6 +14,8 @@ def cli():
     Main CLI command group for Kiki bot.
     """
 
+    pass
+
 
 @cli.command()
 def run():
@@ -26,7 +28,7 @@ def run():
     except KeyError:
         click.error_message("You must specify the bot token under KIKI_TOKEN.")
 
-    redis_host = os.environ.get("REDIS_URL")
+    redis_url = os.environ.get("REDIS_URL")
 
-    kiki = Kiki(redis_host=redis_host)
+    kiki = Kiki(redis_url=redis_url)
     kiki.run(token)

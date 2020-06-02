@@ -2,7 +2,6 @@
 Info cogs.
 """
 
-from datetime import datetime
 from discord.ext import commands
 from discord import Embed
 
@@ -25,14 +24,11 @@ class Info(commands.Cog):
         Info.
         """
 
-        # Set up the embed.
         embed = Embed(
             title="Status Sheet",
             type="rich",
-            description="Outline of what's working at Kikiriki, and, more \
-                importantly, what isn't.",
-            url="https://kikiriki.ca/status",
-            timestamp=datetime.utcnow())
+            description="Outline of what's working with Kiki, and, more \
+                importantly, what isn't.")
 
         embed.set_author(
             name="Kikiriki Studios Canada",
@@ -41,7 +37,6 @@ class Info(commands.Cog):
 
         embed.set_footer(text="Report any issues to an admin.")
 
-        # Check database and add info to embed.
         db_status = bool(self.bot.redis)
 
         embed.add_field(
@@ -49,5 +44,4 @@ class Info(commands.Cog):
             value="🟢 Running" if db_status else "🔴 Down",
             inline=False)
 
-        # Send the embed.
         await ctx.send(embed=embed)

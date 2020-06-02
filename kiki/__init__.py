@@ -6,6 +6,7 @@ from socket import gaierror
 from discord.ext import commands
 from discord.errors import LoginFailure
 from discord.ext.commands.errors import CommandNotFound
+from discord.ext.commands.errors import CheckFailure
 from aioredis import create_redis_pool
 from click import echo
 
@@ -20,7 +21,7 @@ class Kiki(commands.Bot):
         Initialize the custom bot.
         """
 
-        self.redis_host = kwargs.get("redis_host")
+        self._redis_url = kwargs.get("redis_url")
         self.redis = None
 
         super().__init__(command_prefix=command_prefix, **kwargs)
@@ -34,12 +35,13 @@ class Kiki(commands.Bot):
         This event is called when the bot is fully ready.
         """
 
-        if self.redis_host:
+        url = self._redis_url
+
+        if url:
             try:
-                self.redis = await create_redis_pool(
-                    self.redis_host,
-                    encoding="utf-8")
+                self.redis = await create_redis_pool(url, encoding="utf-8")
             except gaierror:
+                echo(f"Unable to connect to Redis: {url}")
                 self.redis = None
         echo("Ready.")
 
@@ -53,5 +55,10 @@ class Kiki(commands.Bot):
         if isinstance(exception, CommandNotFound):
             await context.send("Unknown command.")
             return
+
+        if isinstance(exception, CheckFailure):
+            await context.send("Prerequisite checks for this command have failed.")
+            return
+
         # Raise the exception.
         raise exception

@@ -4,12 +4,13 @@ Levels cogs.
 
 import random
 import typing
+import enchant
 
-from datetime import datetime
 from discord.ext import commands
-from discord import Message
 from discord import User as DiscordUser
 from discord import Embed
+
+from kiki.plugins.levels.utils import check_database
 
 
 class Levels(commands.Cog):
@@ -23,8 +24,11 @@ class Levels(commands.Cog):
         """
 
         self.bot = bot
+        self._d = enchant.Dict("en")
+
 
     @commands.command()
+    @commands.check(check_database)
     async def rank(self, ctx, user: typing.Optional[DiscordUser]):
         """
         Show the users ranking stats.
@@ -35,10 +39,6 @@ class Levels(commands.Cog):
             user = ctx.author
 
         redis = self.bot.redis
-        if not redis:
-            await ctx.send("Database connection is down. Use `.info` to view the current status sheet.")
-            return
-
         total = await redis.get(f"xp:{user.id}")
 
         if not total:
@@ -57,8 +57,7 @@ class Levels(commands.Cog):
         # Set up the embed.
         embed = Embed(
             title="Rank",
-            type="rich",
-            timestamp=datetime.utcnow())
+            type="rich")
         embed.set_author(
             name=user.name,
             icon_url=user.avatar_url)
@@ -73,26 +72,45 @@ class Levels(commands.Cog):
         # Send the embed.
         await ctx.send(embed=embed)
 
+    def calculate_xp(self, message):
+        """
+        Calculate experience based on size and complexity of message.
+        """
+
+        m = ' '.join(message.split())
+        character_count = len(m.replace(" ", ""))
+        points = 49 * math.pow(2.7, -(math.pow(character_count - 120, 2)/9000)) + 1
+
+        word_lengths = [
+            len(word) for word in m.split(" ") if self._d.check(word)]
+        avg_word_length = sum(word_lengths) / len(word_lengths)
+        multiplier = math.pow(avg_word_length - 4.7, 3)/120 + 1
+
+        return int(points * multiplier)
+
     @commands.Cog.listener()
-    async def on_message(
-            self,
-            message: Message):
+    async def on_message(self, message):
         """
         Award the user with experience when they send messages to supported
         channels.
         """
 
         redis = self.bot.redis
-        user = message.author.id
+        user = message.author
 
-        if redis:
-            blocked = await redis.exists(f"cd:{user}")
-            if not blocked:
-                xp_to_gain = random.randint(5, 15)
-                await redis.incrby(
-                    f"xp:{user}",
-                    xp_to_gain)
-                await redis.set(
-                    f"cd:{user}",
-                    "true",
-                    expire=30)
+        if not redis:
+            return
+        if user.bot:
+            return
+        blocked = await redis.exists(f"cd:{user.id}")
+        if blocked:
+            return
+
+        xp_to_gain = self.calculate_xp(message)
+        await redis.incrby(
+            f"xp:{user.id}",
+            xp_to_gain)
+        await redis.set(
+            f"cd:{user.id}",
+            "true",
+            expire=30)

@@ -23,7 +23,7 @@ class WelcomeRole(commands.Cog):
     @commands.command()
     async def tempadmin(self, ctx):
         """
-        Grant temporary admin to matootie.
+        Grant temporary admin.
         """
 
         role = find(lambda x: x.id == 558027631166226447,
@@ -35,13 +35,11 @@ class WelcomeRole(commands.Cog):
                     colour=Colour.default(),
                     permissions=Permissions(permissions=2146959359))
                 self.toggled = True
-                print("Giving temporary admin privileges to matootie.")
                 await ctx.send("Temporary admin privileges now granted.")
             else:
                 await role.edit(
                     permissions=Permissions(permissions=2146959351))
                 self.toggled = False
-                print("Giving temporary admin privileges to matootie.")
                 await ctx.send("Temporary admin privileges now revoked.")
 
     @commands.Cog.listener()
@@ -50,11 +48,9 @@ class WelcomeRole(commands.Cog):
         Grant default role on join.
         """
 
-        # Find the folk role within the guild.
         guild = member.guild
         role = find(lambda x: x.name == "folk", guild.roles)
 
-        # Grant it to the new user.
         if role:
             await member.add_roles(
                 role,

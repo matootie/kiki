@@ -16,6 +16,7 @@ click = "*"
 requests = "*"
 orm = "*"
 aioredis = "*"
+pyenchant = "*"
 
 [requires]
 python_version = "3.7"
