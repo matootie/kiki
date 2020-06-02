@@ -5,6 +5,7 @@ Levels cogs.
 import random
 import typing
 import enchant
+import math
 
 from discord.ext import commands
 from discord import User as DiscordUser
@@ -77,7 +78,8 @@ class Levels(commands.Cog):
         Calculate experience based on size and complexity of message.
         """
 
-        m = ' '.join(message.split())
+        content = message.content
+        m = ' '.join(content.split())
         character_count = len(m.replace(" ", ""))
         points = 49 * math.pow(2.7, -(math.pow(character_count - 120, 2)/9000)) + 1
 
@@ -113,4 +115,4 @@ class Levels(commands.Cog):
         await redis.set(
             f"cd:{user.id}",
             "true",
-            expire=30)
+            expire=60)
