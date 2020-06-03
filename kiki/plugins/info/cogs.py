@@ -32,16 +32,20 @@ class Info(commands.Cog):
 
         embed.set_author(
             name="Kikiriki Studios Canada",
-            url="https://kikiriki.ca/",
+            url="https://github.com/matootie/kiki",
             icon_url="https://cdn.discordapp.com/attachments/604373743837511693/653741067904221231/icon_circle_variant_1000x1000.png")  # noqa
 
         embed.set_footer(text="Report any issues to an admin.")
 
         db_status = bool(self.bot.redis)
-
         embed.add_field(
             name="Database connection",
             value="🟢 Running" if db_status else "🔴 Down",
+            inline=False)
+
+        embed.add_field(
+            name="Version",
+            value=self.bot.version,
             inline=False)
 
         await ctx.send(embed=embed)

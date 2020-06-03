@@ -85,7 +85,8 @@ class Levels(commands.Cog):
 
         word_lengths = [
             len(word) for word in m.split(" ") if self._d.check(word)]
-        avg_word_length = sum(word_lengths) / len(word_lengths)
+        divisor = len(word_lengths) if len(word_lengths) > 0 else 1
+        avg_word_length = sum(word_lengths) / divisor
         multiplier = math.pow(avg_word_length - 4.7, 3)/120 + 1
 
         return int(points * multiplier)
