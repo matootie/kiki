@@ -18,7 +18,8 @@ def cli():
 
 
 @cli.command()
-def run():
+@click.option("-V", "--version", "version")
+def run(version: str = "v0.1.0-alpha"):
     """
     Run the bot.
     """
@@ -30,5 +31,5 @@ def run():
 
     redis_url = os.environ.get("REDIS_URL")
 
-    kiki = Kiki(redis_url=redis_url)
+    kiki = Kiki(redis_url=redis_url, version=version)
     kiki.run(token)

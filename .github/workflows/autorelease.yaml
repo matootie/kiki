@@ -17,6 +17,8 @@ jobs:
         uses: matootie/github-docker@v2.2.3
         with:
           accessToken: ${{ secrets.GITHUB_TOKEN }}
+          buildArg: |
+            VERSION=${GITHUB_REF##*/}
 
       - name: Save DigitalOcean Kubernetes Config
         uses: matootie/dokube@v1.3.1

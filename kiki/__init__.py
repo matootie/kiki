@@ -23,6 +23,8 @@ class Kiki(commands.Bot):
 
         self._redis_url = kwargs.get("redis_url")
         self.redis = None
+        
+        self.version = kwargs.get("version")
 
         super().__init__(command_prefix=command_prefix, **kwargs)
 
