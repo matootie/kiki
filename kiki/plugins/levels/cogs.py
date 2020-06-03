@@ -73,21 +73,39 @@ class Levels(commands.Cog):
         # Send the embed.
         await ctx.send(embed=embed)
 
-    def calculate_xp(self, message):
+    async def calculate_xp(self, message):
         """
-        Calculate experience based on size and complexity of message.
+        Calculate experience based on size and complexity of message. Makes use
+        of Redis sets, more information can be found in references.
+
+        References:
+          https://redis.io/commands#set
         """
+
+        redis = self.bot.redis
 
         content = message.content
         m = ' '.join(content.split())
         character_count = len(m.replace(" ", ""))
         points = 49 * math.pow(2.7, -(math.pow(character_count - 120, 2)/9000)) + 1
+        words = set([word.lower() for word in m.split(" ") if self._d.check(word)])
 
-        word_lengths = [
-            len(word) for word in m.split(" ") if self._d.check(word)]
+        # Determine the valid words by checking whether they exist in the
+        # blocked set.
+        valid_words = []
+        for word in words:
+            is_member = await redis.sismember("blockedwords", word)
+            if not is_member:
+                valid_words.append(word)
+
+        word_lengths = [len(word) for word in valid_words]
         divisor = len(word_lengths) if len(word_lengths) > 0 else 1
         avg_word_length = sum(word_lengths) / divisor
         multiplier = math.pow(avg_word_length - 4.7, 3)/120 + 1
+
+        # Block the new words.
+        await redis.spop("blockedwords", len(valid_words))
+        await redis.sadd("blockedwords", *valid_words)
 
         return int(points * multiplier)
 
@@ -109,7 +127,7 @@ class Levels(commands.Cog):
         if blocked:
             return
 
-        xp_to_gain = self.calculate_xp(message)
+        xp_to_gain = await self.calculate_xp(message)
         await redis.incrby(
             f"xp:{user.id}",
             xp_to_gain)
