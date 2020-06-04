@@ -5,16 +5,11 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
-autopep8 = "*"
 flake8 = "*"
 
 [packages]
-asyncpg = "*"
-psycopg2-binary = "*"
 discord-py = "*"
 click = "*"
-requests = "*"
-orm = "*"
 aioredis = "*"
 pyenchant = "*"
 

@@ -1,59 +1,64 @@
-"""
-Levels cogs.
+"""Levels cogs.
+
+Essential functionality for the levels plugin to run. This module contains the
+main functionality of the plugin. There is no typical usage here as the
+top-level levels plugin is the only module that requires access to this code.
+
+References:
+- https://discordpy.readthedocs.io/en/latest/ext/commands/cogs.html
 """
 
-import random
 import typing
-import enchant
-import math
 
-from discord.ext import commands
-from discord import User as DiscordUser
+from discord import User
 from discord import Embed
+from discord import Message
+from discord.ext import commands
 
 from kiki.plugins.levels.utils import check_database
+from kiki.plugins.levels.utils import check_level
+from kiki.plugins.levels.utils import get_experience
+from kiki.plugins.levels.utils import set_experience
+from kiki.plugins.levels.utils import calculate_worth
+from kiki.plugins.levels.utils import is_blocked
 
 
 class Levels(commands.Cog):
-    """
-    Levels Cog.
+    """Levels Cog.
+
+    Discord.py extensions Cog, defining all commands and listeners related to
+    the levels plugin.
+
+    Attributes:
+        bot: A reference to the main bot, only used within listeners.
     """
 
     def __init__(self, bot):
         """
-        Initialize the Cog.
         """
 
         self.bot = bot
-        self._d = enchant.Dict("en")
-
 
     @commands.command()
     @commands.check(check_database)
-    async def rank(self, ctx, user: typing.Optional[DiscordUser]):
-        """
-        Show the users ranking stats.
+    async def rank(self, ctx: commands.Context, user: typing.Optional[User]):
+        """Show the users ranking stats.
+
+        A command to show the level and total experience of a given
+        user. Invoked by members of a shared server with the bot. The response
+        is sent back to the original context in the form of a Discord embed.
+
+        Args:
+            ctx: Discord.py context object.
+            user: Optional third-party to check rankings for.
         """
 
         # Choose the appropriate user.
         if not user:
             user = ctx.author
 
-        redis = self.bot.redis
-        total = await redis.get(f"xp:{user.id}")
-
-        if not total:
-            total = 0
-
-        level = 0
-        xp = int(total)
-        while True:
-            needed = 5 * (level ** 2) + 50 * level + 100
-            if xp - needed >= 0:
-                xp -= needed
-                level += 1
-            else:
-                break
+        response = await get_experience(ctx.bot.redis, user)
+        level, total = check_level(response)
 
         # Set up the embed.
         embed = Embed(
@@ -73,65 +78,31 @@ class Levels(commands.Cog):
         # Send the embed.
         await ctx.send(embed=embed)
 
-    async def calculate_xp(self, message):
-        """
-        Calculate experience based on size and complexity of message. Makes use
-        of Redis sets, more information can be found in references.
-
-        References:
-          https://redis.io/commands#set
-        """
-
-        redis = self.bot.redis
-
-        content = message.content
-        m = ' '.join(content.split())
-        character_count = len(m.replace(" ", ""))
-        points = 49 * math.pow(2.7, -(math.pow(character_count - 120, 2)/9000)) + 1
-        words = set([word.lower() for word in m.split(" ") if self._d.check(word)])
-
-        # Determine the valid words by checking whether they exist in the
-        # blocked set.
-        valid_words = []
-        for word in words:
-            is_member = await redis.sismember("blockedwords", word)
-            if not is_member:
-                valid_words.append(word)
-
-        word_lengths = [len(word) for word in valid_words]
-        divisor = len(word_lengths) if len(word_lengths) > 0 else 1
-        avg_word_length = sum(word_lengths) / divisor
-        multiplier = math.pow(avg_word_length - 4.7, 3)/120 + 1
-
-        # Block the new words.
-        await redis.spop("blockedwords", len(valid_words))
-        await redis.sadd("blockedwords", *valid_words)
-
-        return int(points * multiplier)
-
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: Message):
+        """Message listener.
+
+        Listen for messages and award message authors with experience when they
+        send messages to supported channels.
+
+        Args:
+            message: The message that was sent.
         """
-        Award the user with experience when they send messages to supported
-        channels.
-        """
 
-        redis = self.bot.redis
-        user = message.author
-
-        if not redis:
+        # Preemptive checks.
+        if not check_database(self):
             return
-        if user.bot:
+        if message.author.bot:
             return
-        blocked = await redis.exists(f"cd:{user.id}")
-        if blocked:
+        if (await is_blocked(self.bot.redis, message.author)):
             return
 
-        xp_to_gain = await self.calculate_xp(message)
-        await redis.incrby(
-            f"xp:{user.id}",
-            xp_to_gain)
-        await redis.set(
-            f"cd:{user.id}",
-            "true",
-            expire=60)
+        # Award experience.
+        xp = await calculate_worth(
+            self.bot.redis,
+            self.bot.dictionary,
+            message)
+        await set_experience(
+            self.bot.redis,
+            message.author,
+            offset=xp)

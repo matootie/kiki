@@ -28,4 +28,4 @@ Please make sure that the work you are trying to do isn't already done and being
 
 ## Style Guides
 
-This document will be expanded on in the future. For now, follow PEP8 using the provided development package `autopep8`, and lint your code using the provided development package `pylint`.
+This project follows the [Google Python Style guide](https://google.github.io/styleguide/pyguide.html).
