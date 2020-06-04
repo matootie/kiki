@@ -1,56 +1,39 @@
-"""
-Automod cogs.
+"""Automod cogs.
+
+Essential functionality for the automod plugin to run. This module contains the
+main functionality of the plugin. There is no typical usage here as the
+top-level automod plugin is the only module that requires access to this code.
+
+References:
+- https://discordpy.readthedocs.io/en/latest/ext/commands/cogs.html
 """
 
-from discord.ext import commands
+from discord.ext.commands import Cog
 from discord.utils import find
-from discord import Permissions, Colour
 
 
-class WelcomeRole(commands.Cog):
+class WelcomeRole(Cog):
+    """Welcome role Cog.
+
+    Discord.py extensions Cog, defining all commands and listeners related to
+    the "welcome role" aspect of the automod plugin.
     """
-    Welcome role Cog.
-    """
 
-    def __init__(self, bot):
-        """
-        Initialize the Cog.
-        """
-
-        self.bot = bot
-        self.toggled = False
-
-    @commands.command()
-    async def tempadmin(self, ctx):
-        """
-        Grant temporary admin.
-        """
-
-        role = find(lambda x: x.id == 558027631166226447,
-                    ctx.message.channel.guild.roles)
-        if role:
-            if not self.toggled:
-                await role.edit(
-                    name="admin",
-                    colour=Colour.default(),
-                    permissions=Permissions(permissions=2146959359))
-                self.toggled = True
-                await ctx.send("Temporary admin privileges now granted.")
-            else:
-                await role.edit(
-                    permissions=Permissions(permissions=2146959351))
-                self.toggled = False
-                await ctx.send("Temporary admin privileges now revoked.")
-
-    @commands.Cog.listener()
+    @Cog.listener()
     async def on_member_join(self, member):
-        """
-        Grant default role on join.
+        """Message listener.
+
+        When new users join the server, it grants them with a complimentary
+        default role.
+
+        Args:
+            member: The user that joined the server.
         """
 
-        guild = member.guild
-        role = find(lambda x: x.name == "folk", guild.roles)
+        # Find an appropriate default role.
+        role = find(lambda x: x.name == "folk", member.guild.roles)
 
+        # Assign the role, if it was found.
         if role:
             await member.add_roles(
                 role,
