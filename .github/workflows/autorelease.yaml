@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-    
+
       - name: Get version
         id: gv
         run: echo "::set-output name=version::${GITHUB_REF##*/}"
@@ -33,3 +33,12 @@ jobs:
 
       - name: Update Deployment
         run: kubectl set image deployment.apps/kiki kiki=${{ steps.publish-image.outputs.imageURL }}
+
+      - name: Wait for Deployment
+        run: kubectl rollout status deployment/kiki -w
+
+      - name: Send out Webhook
+        uses: ./.github/actions/kiki-release-notifier
+        with:
+          accessToken: ${{ secrets.GITHUB_TOKEN }}
+          webhookURL: ${{ secrets.WEBHOOK_URL }}

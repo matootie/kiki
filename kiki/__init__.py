@@ -74,6 +74,9 @@ class Kiki(Bot):
         - https://discordpy.readthedocs.io/en/latest/api.html#discord.on_ready
         """
 
+        # Announce version number.
+        echo(f"Running Kiki bot {self.version}")
+
         # Set a cleaner name for the URL.
         url = self._redis_url
 

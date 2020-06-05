@@ -1,0 +1,12 @@
+name: 'Kiki Release Notifier'
+description: 'Kiki'
+inputs:
+  accessToken:
+    description: 'Access token'
+    required: true
+  webhookURL:
+    description: 'Webhook URL'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
