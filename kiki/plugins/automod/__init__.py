@@ -11,7 +11,7 @@ References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/extensions.html
 """
 
-from .cogs import WelcomeRole
+from .cogs import Automod
 
 
 def setup(bot):
@@ -20,4 +20,4 @@ def setup(bot):
     Simple setup of the automod plugin.
     """
 
-    bot.add_cog(WelcomeRole(bot))
+    bot.add_cog(Automod(bot))
