@@ -8,11 +8,13 @@ References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/cogs.html
 """
 
-from discord.ext.commands import Cog
+import typing
+from discord.ext import commands
 from discord.utils import find
+from discord import Role
 
 
-class Automod(Cog):
+class Automod(commands.Cog):
     """Automod Cog.
 
     Discord.py extensions Cog, defining all commands and listeners related to
@@ -29,8 +31,89 @@ class Automod(Cog):
             558027628502712334: 722115152832364624,
             558085901255704577: 722115302669811785
         }
+        # List of available roles for users to join/leave as they please.
+        # Eventually this will be moved to database.
+        self.supported_roles = [
+            673282506543464488,
+            700130836527317002,
+            703783696460939335,
+            673282438037897284,
+            673282603440406567,
+            708866612626718820,
+            712462587857600523,
+            717925373647519774,
+            722123884811386971,
+            721215716564533279,
+            722140497812127777,
+            722140535133044787,
+            722148256385335346,
+            722148258516041779,
+            722148300660277248
+        ]
 
-    @Cog.listener()
+    @commands.command()
+    async def list(self, ctx: commands.Context):
+        """List supported roles.
+
+        Args:
+            ctx: Discord.py context object.
+        """
+
+        message = "Here's a list of supported roles:\n\n"
+
+        for role_id in self.supported_roles:
+            role = find(lambda x: x.id == role_id, ctx.guild.roles)
+            if role:
+                message += f"\"{role.name}\"\n"
+
+        message += "\nYou can add roles using the `.join` command, "\
+            "specifying each role by mention or by full name (in quotes)."
+
+        await ctx.send(message)
+
+    @commands.command()
+    async def join(
+            self,
+            ctx: commands.Context,
+            roles: commands.Greedy[typing.Union[Role, str]]):
+        """Join supported roles.
+
+        Args:
+            ctx: Discord.py context object.
+            roles: Collection of roles by mention or by name.
+        """
+
+        r = []
+        for role in roles:
+            if type(role) == str:
+                role = find(lambda x: x.name == role, ctx.guild.roles)
+            if role and role.id in self.supported_roles:
+                r.append(role)
+        if r:
+            await ctx.author.add_roles(*r, reason="Subscribed to roles")
+
+    @commands.command()
+    async def leave(
+            self,
+            ctx: commands.Context,
+            roles: commands.Greedy[typing.Union[Role, str]]):
+        """Leave supported roles.
+
+        Args:
+            ctx: Discord.py context object.
+            roles: Collection of roles by mention or by name.
+        """
+
+        r = []
+        for role in roles:
+            if type(role) == str:
+                role = find(lambda x: x.name == role, ctx.guild.roles)
+            if role.id in self.supported_roles:
+                r.append(role)
+        if r:
+            await ctx.author.remove_roles(*r, reason="Unsubscribed from roles")
+
+    @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """Voice state listener.
 
@@ -82,7 +165,7 @@ class Automod(Cog):
                 role = find(lambda x: x.id == role_id, member.guild.roles)
                 await member.add_roles(role, reason="In voice channel")
 
-    @Cog.listener()
+    @commands.Cog.listener()
     async def on_member_join(self, member):
         """Message listener.
 
