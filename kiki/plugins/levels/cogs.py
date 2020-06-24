@@ -14,6 +14,7 @@ from discord import User
 from discord import Embed
 from discord import Message
 from discord.ext import commands
+from discord.utils import find
 
 from kiki.plugins.levels.utils import check_database
 from kiki.plugins.levels.utils import check_level
@@ -102,7 +103,44 @@ class Levels(commands.Cog):
             self.bot.redis,
             self.bot.dictionary,
             message)
-        await set_experience(
+        new_xp = await set_experience(
             self.bot.redis,
             message.author,
             offset=xp)
+
+        old_xp = new_xp - xp
+        old_level, _ = check_level(old_xp)
+        new_level, _ = check_level(new_xp)
+
+        if old_level >= new_level:
+            return
+
+        # User has ranked up.
+        await message.channel.send(
+            f"{message.author.mention}, you are now level {new_level}.")
+
+        old_digits = len(str(old_level))
+        new_digits = len(str(new_level))
+
+        if new_digits > 4 or old_digits >= new_digits:
+            return
+
+        role_structure = {
+            1: find(lambda x: x.id == 717586013534421002, message.guild.roles),
+            2: find(lambda x: x.id == 717586130689589309, message.guild.roles),
+            3: find(lambda x: x.id == 717586290740297739, message.guild.roles),
+            4: find(lambda x: x.id == 717586479236251732, message.guild.roles),
+        }
+
+        outranked = []
+        for digits, role in role_structure.items():
+            if digits == new_digits:
+                await message.author.add_roles(
+                    role,
+                    reason="User has gained a new status")
+                break
+            outranked.append(role)
+
+        await message.author.remove_roles(
+            *outranked,
+            reason="User has outranked this status")
