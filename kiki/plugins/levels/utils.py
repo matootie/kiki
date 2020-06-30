@@ -34,7 +34,7 @@ import math
 
 from aioredis import Redis
 from enchant import Dict
-from discord import User, Message
+from discord import User, Message, VoiceState
 from discord.ext.commands import Context
 
 
@@ -88,6 +88,13 @@ def check_level(total_experience: int = 0) -> int:
 
     # Return the available values.
     return level, total_experience
+
+
+def check_can_talk(voice_state: VoiceState) -> bool:
+    return not voice_state.deaf \
+        and not voice_state.mute \
+        and not voice_state.self_mute \
+        and not voice_state.self_deaf
 
 
 async def is_blocked(redis: Redis, user: User) -> bool:

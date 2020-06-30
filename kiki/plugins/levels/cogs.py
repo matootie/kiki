@@ -9,19 +9,17 @@ References:
 """
 
 import typing
+from datetime import datetime
 
 from discord import User
 from discord import Embed
 from discord import Message
+from discord import Member
+from discord import VoiceState
 from discord.ext import commands
 from discord.utils import find
 
-from kiki.plugins.levels.utils import check_database
-from kiki.plugins.levels.utils import check_level
-from kiki.plugins.levels.utils import get_experience
-from kiki.plugins.levels.utils import set_experience
-from kiki.plugins.levels.utils import calculate_worth
-from kiki.plugins.levels.utils import is_blocked
+from kiki.plugins.levels import utils
 
 
 class Levels(commands.Cog):
@@ -39,9 +37,19 @@ class Levels(commands.Cog):
         """
 
         self.bot = bot
+        self.state = {
+            "channels": {
+                "members": {
+
+                },
+                "activities": {
+
+                },
+            },
+        }
 
     @commands.command()
-    @commands.check(check_database)
+    @commands.check(utils.check_database)
     async def rank(self, ctx: commands.Context, user: typing.Optional[User]):
         """Show the users ranking stats.
 
@@ -58,8 +66,8 @@ class Levels(commands.Cog):
         if not user:
             user = ctx.author
 
-        response = await get_experience(ctx.bot.redis, user)
-        level, total = check_level(response)
+        response = await utils.get_experience(ctx.bot.redis, user)
+        level, total = utils.check_level(response)
 
         # Set up the embed.
         embed = Embed(
@@ -80,6 +88,49 @@ class Levels(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.Cog.listener()
+    async def on_voice_state_update(
+            self,
+            member: Member,
+            before: VoiceState,
+            after: VoiceState):
+        """
+        """
+
+        if not before.channel and after.channel:
+            # User has joined a channel.
+            if not utils.can_talk(after):
+                return  # WARNING: might need to add to local state.
+
+            activity = member.activity.name
+            # look through state to calculate multiplier...
+            multiplier = 1
+
+            # add to list of member objects
+            self.state[after.channel.id][member.id] = {
+                "eligible_since": datetime.now(),
+            }
+
+        elif before.channel and not after.channel:
+            # User has left a channel.
+
+            # They have become ineligible, remove them from the state.
+            member_state = self.state[before.channel.id].pop(member.id)
+            # Award points.
+            # for every member in the state who is affected by this change,
+            # award them points, and modify their state.
+            members_affected = self.state[before.channel.id].items()
+            for key, value in members_affected:
+                self.state[before.channel.id][key] = {
+
+                }
+
+        elif before.channel and after.channel:
+            # User has modified their state in some other way...
+            pass
+        else:
+            pass
+
+    @commands.Cog.listener()
     async def on_message(self, message: Message):
         """Message listener.
 
@@ -91,26 +142,26 @@ class Levels(commands.Cog):
         """
 
         # Preemptive checks.
-        if not check_database(self):
+        if not utils.check_database(self):
             return
         if message.author.bot:
             return
-        if (await is_blocked(self.bot.redis, message.author)):
+        if (await utils.is_blocked(self.bot.redis, message.author)):
             return
 
         # Award experience.
-        xp = await calculate_worth(
+        xp = await utils.calculate_worth(
             self.bot.redis,
             self.bot.dictionary,
             message)
-        new_xp = await set_experience(
+        new_xp = await utils.set_experience(
             self.bot.redis,
             message.author,
             offset=xp)
 
         old_xp = new_xp - xp
-        old_level, _ = check_level(old_xp)
-        new_level, _ = check_level(new_xp)
+        old_level, _ = utils.check_level(old_xp)
+        new_level, _ = utils.check_level(new_xp)
 
         if old_level >= new_level:
             return
