@@ -31,11 +31,167 @@ References:
 """
 
 import math
+from datetime import datetime
 
 from aioredis import Redis
 from enchant import Dict
-from discord import User, Message, VoiceState
+from discord import User, Message, VoiceState, VoiceChannel, Member
 from discord.ext.commands import Context
+
+
+class Voice:
+    """
+    """
+
+    def __init__(self, bot):
+        """
+        """
+
+        self.state = {}
+        self.bot = bot
+
+    async def __apply(self, channel: VoiceChannel):
+        """Apply state xp to database.
+        """
+
+        state = self.state.get(channel.id)
+        if not state:
+            return
+
+        # Calculate time diff.
+        now = datetime.now()
+        then = state["timestamp"]
+        delta = now - then
+
+        # Count members for multipliers.
+        members = []
+        for g, m in state["activities"].items():
+            mc = len(m)
+            ml = self.__game_multiplier(mc) if g else 1
+            for mm in m:
+                members.append((mm, ml))
+
+        user_multiplier = self.__user_multiplier(len(members))
+        for member, game_multiplier in members:
+            xp = self.__xp_rate * \
+                 delta.total_seconds() * \
+                 user_multiplier * \
+                 game_multiplier
+            await self.bot.redis.incrby("xp:{member}", int(xp))
+
+    def __update(self, channel: VoiceChannel):
+        """Update the values in the state.
+        """
+
+        self.state[channel.id] = {
+            "timestamp": datetime.now(),
+            "activities": {
+                None: [],
+            },
+        }
+        state = self.state[channel.id]
+
+        # For every member in the voice channel.
+        for m in channel.members:
+            # Assuming the member if eligible.
+            if self.eligible(m.voice):
+                # Get the members activity.
+                g = m.activity
+                # Grab the activity name if it is valid.
+                if g:
+                    g = g.name if self.__valid_game(g.name) else None
+                # Add the member to the activity
+                state["activities"].setdefault(g, [])
+                state["activities"][g].append(m.id)
+
+        self.state[channel.id] = state
+        print(self.state)
+
+    async def refresh(self, channel: VoiceChannel):
+        """
+        """
+
+        await self.__apply(channel)
+        self.__update(channel)
+
+    @property
+    def __xp_rate(self) -> float:
+        """
+        """
+
+        return 0.1
+
+    def __user_multiplier(self, count: int) -> float:
+        """
+        """
+
+        return 1.0
+
+    def __game_multiplier(self, count: int) -> float:
+        """
+        """
+
+        return 1.0
+
+    def __valid_game(self, game: str) -> bool:
+        """
+        """
+
+        return game in ["Minecraft", ]
+
+    def __unobstructed(self, state: VoiceState) -> bool:
+        """Determine if a user is obstructed.
+        """
+
+        mute = state.mute or state.self_mute
+        deaf = state.deaf or state.self_deaf
+        obstructed = mute or deaf
+
+        return not obstructed
+
+    def __peers(self, state: VoiceState) -> int:
+        """Determine the number of unobstructed members in a channel.
+        """
+
+        # TODO: Figure out a new way to track past channel members
+        c = 0
+        if state.channel:
+            mc = 0
+            return len(state.channel.members)
+            stc = self.state.get(state.channel.id)
+            if not stc:
+                return 0
+            for m in stc["activities"].values():
+                mc += len(m)
+        return c
+
+    def __all_eligible_members(self) -> list:
+        """Get all current eligible members.
+        """
+
+        members = []
+        for state in self.state.values():
+            for member in state["activities"].values():
+                members += member
+
+        return members
+
+    def eligible_member(self, member: Member) -> bool:
+        """
+        """
+
+        return member.id in self.__all_eligible_members()
+
+    def eligible(self, state: VoiceState) -> bool:
+        """Determine if a user is eligible.
+        """
+
+        is_unobstructed = self.__unobstructed(state)
+        peers = len(self.__all_eligible_members())
+        print(peers)
+        # enough_peers = peers > 0  # TODO: 1
+
+        return is_unobstructed  # and enough_peers
 
 
 def check_database(ctx: Context) -> bool:
@@ -88,13 +244,6 @@ def check_level(total_experience: int = 0) -> int:
 
     # Return the available values.
     return level, total_experience
-
-
-def check_can_talk(voice_state: VoiceState) -> bool:
-    return not voice_state.deaf \
-        and not voice_state.mute \
-        and not voice_state.self_mute \
-        and not voice_state.self_deaf
 
 
 async def is_blocked(redis: Redis, user: User) -> bool:
@@ -152,7 +301,8 @@ async def calculate_worth(
     characters will score lower, but too many characters will also score low.
     The message will also be given a multiplier based on the average word
     length of real words that have not been used previously. The resulting
-    score is the character count score multiplied by the word-length multiplier.
+    score is the character count score multiplied by the word-length
+    multiplier.
 
     Args:
         redis: An available connection to Redis.
@@ -173,7 +323,9 @@ async def calculate_worth(
 
     # Collect a set of words.
     words = set(
-        [word.lower() for word in message.split(" ") if dictionary.check(word)])
+        [word.lower()
+         for word in message.split(" ")
+         if dictionary.check(word)])
     # Determine the valid words by checking whether they exist in the
     # blocked set.
     valid_words = []

@@ -9,13 +9,8 @@ References:
 """
 
 import typing
-from datetime import datetime
 
-from discord import User
-from discord import Embed
-from discord import Message
-from discord import Member
-from discord import VoiceState
+from discord import User, Embed, Message, Member, VoiceState
 from discord.ext import commands
 from discord.utils import find
 
@@ -37,16 +32,7 @@ class Levels(commands.Cog):
         """
 
         self.bot = bot
-        self.state = {
-            "channels": {
-                "members": {
-
-                },
-                "activities": {
-
-                },
-            },
-        }
+        self.voice = utils.Voice(bot)
 
     @commands.command()
     @commands.check(utils.check_database)
@@ -96,39 +82,50 @@ class Levels(commands.Cog):
         """
         """
 
-        if not before.channel and after.channel:
-            # User has joined a channel.
-            if not utils.can_talk(after):
-                return  # WARNING: might need to add to local state.
+        voice = self.voice
 
-            activity = member.activity.name
-            # look through state to calculate multiplier...
-            multiplier = 1
+        # If they were previously eligible or they are eligible.
+        if voice.eligible_member(member) or voice.eligible(after):
+            bc = before.channel
+            ac = after.channel
+            # Refresh the state for the channel they were in, if there is one.
+            if bc:
+                await voice.refresh(bc)
+            # Refresh the state for the channel they are in, if there is one,
+            # only if the channel is not the same.
+            if ac and ac != bc:
+                await voice.refresh(ac)
 
-            # add to list of member objects
-            self.state[after.channel.id][member.id] = {
-                "eligible_since": datetime.now(),
-            }
+    @commands.Cog.listener()
+    async def on_member_update(
+            self,
+            before: Member,
+            after: Member):
+        """
+        """
 
-        elif before.channel and not after.channel:
-            # User has left a channel.
+        voice = self.voice
+        ba = before.activity
+        aa = after.activity
 
-            # They have become ineligible, remove them from the state.
-            member_state = self.state[before.channel.id].pop(member.id)
-            # Award points.
-            # for every member in the state who is affected by this change,
-            # award them points, and modify their state.
-            members_affected = self.state[before.channel.id].items()
-            for key, value in members_affected:
-                self.state[before.channel.id][key] = {
+        # If their activity has changed.
+        if ba != aa:
+            bv = before.voice
+            av = after.voice
 
-                }
+            # If they were previously eligible or they are eligible.
+            if voice.eligible(bv) or voice.eligible(av):
+                bc = bv.channel
+                ac = av.channel
 
-        elif before.channel and after.channel:
-            # User has modified their state in some other way...
-            pass
-        else:
-            pass
+                # Refresh the state for the channel they were in,
+                # if there is one.
+                if bc:
+                    await voice.refresh(bc)
+                # Refresh the state for the channel they are in,
+                # if there is one.
+                if ac:
+                    await voice.refresh(ac)
 
     @commands.Cog.listener()
     async def on_message(self, message: Message):
