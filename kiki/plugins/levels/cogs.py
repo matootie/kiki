@@ -73,6 +73,10 @@ class Levels(commands.Cog):
         # Send the embed.
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def state(self, ctx):
+        print(self.voice.state)
+
     @commands.Cog.listener()
     async def on_voice_state_update(
             self,

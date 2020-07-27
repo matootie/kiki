@@ -73,11 +73,17 @@ class Voice:
 
         user_multiplier = self.__user_multiplier(len(members))
         for member, game_multiplier in members:
-            xp = self.__xp_rate * \
-                 delta.total_seconds() * \
-                 user_multiplier * \
-                 game_multiplier
-            await self.bot.redis.incrby("xp:{member}", int(xp))
+            rate = self.__xp_rate
+            time = delta.total_seconds()
+            xp = rate * time * \
+                user_multiplier * \
+                game_multiplier
+            print(f"----- {member} -----")
+            print(f"Base XP: {rate * time}")
+            print(f"User MP: {user_multiplier}")
+            print(f"Game MP: {game_multiplier}")
+            print(f"Totl XP: {int(xp)}")
+            await self.bot.redis.incrby(f"xp:{member}", int(xp))
 
     def __update(self, channel: VoiceChannel):
         """Update the values in the state.
@@ -105,7 +111,6 @@ class Voice:
                 state["activities"][g].append(m.id)
 
         self.state[channel.id] = state
-        print(self.state)
 
     async def refresh(self, channel: VoiceChannel):
         """
@@ -119,25 +124,29 @@ class Voice:
         """
         """
 
-        return 0.1
+        return 2
 
     def __user_multiplier(self, count: int) -> float:
         """
         """
 
-        return 1.0
+        if count < 2:
+            return 1
+        return (1 / 6) * (count - 2) + 1
 
     def __game_multiplier(self, count: int) -> float:
         """
         """
 
-        return 1.0
+        if count < 2:
+            return 1
+        return (1 / 4) * (count - 2) + 1.5
 
     def __valid_game(self, game: str) -> bool:
         """
         """
 
-        return game in ["Minecraft", ]
+        return game in ["Minecraft", "Overwatch"]
 
     def __unobstructed(self, state: VoiceState) -> bool:
         """Determine if a user is obstructed.
@@ -153,17 +162,13 @@ class Voice:
         """Determine the number of unobstructed members in a channel.
         """
 
-        # TODO: Figure out a new way to track past channel members
-        c = 0
-        if state.channel:
-            mc = 0
-            return len(state.channel.members)
-            stc = self.state.get(state.channel.id)
-            if not stc:
-                return 0
-            for m in stc["activities"].values():
-                mc += len(m)
-        return c
+        channel = state.channel
+        p = 0
+        if channel:
+            for m in channel.members:
+                if self.__unobstructed(m.voice):
+                    p += 1
+        return p
 
     def __all_eligible_members(self) -> list:
         """Get all current eligible members.
@@ -173,11 +178,10 @@ class Voice:
         for state in self.state.values():
             for member in state["activities"].values():
                 members += member
-
         return members
 
     def eligible_member(self, member: Member) -> bool:
-        """
+        """Used to see if a member was previously eligible.
         """
 
         return member.id in self.__all_eligible_members()
@@ -187,11 +191,11 @@ class Voice:
         """
 
         is_unobstructed = self.__unobstructed(state)
-        peers = len(self.__all_eligible_members())
-        print(peers)
-        # enough_peers = peers > 0  # TODO: 1
+        previous_peers = len(self.__all_eligible_members())
+        current_peers = self.__peers(state)
+        enough_peers = previous_peers > 1 or current_peers > 1
 
-        return is_unobstructed  # and enough_peers
+        return is_unobstructed and enough_peers
 
 
 def check_database(ctx: Context) -> bool:
