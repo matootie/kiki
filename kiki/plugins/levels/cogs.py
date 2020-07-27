@@ -10,18 +10,11 @@ References:
 
 import typing
 
-from discord import User
-from discord import Embed
-from discord import Message
+from discord import User, Embed, Message, Member, VoiceState
 from discord.ext import commands
 from discord.utils import find
 
-from kiki.plugins.levels.utils import check_database
-from kiki.plugins.levels.utils import check_level
-from kiki.plugins.levels.utils import get_experience
-from kiki.plugins.levels.utils import set_experience
-from kiki.plugins.levels.utils import calculate_worth
-from kiki.plugins.levels.utils import is_blocked
+from kiki.plugins.levels import utils
 
 
 class Levels(commands.Cog):
@@ -39,9 +32,10 @@ class Levels(commands.Cog):
         """
 
         self.bot = bot
+        self.voice = utils.Voice(bot)
 
     @commands.command()
-    @commands.check(check_database)
+    @commands.check(utils.check_database)
     async def rank(self, ctx: commands.Context, user: typing.Optional[User]):
         """Show the users ranking stats.
 
@@ -58,8 +52,8 @@ class Levels(commands.Cog):
         if not user:
             user = ctx.author
 
-        response = await get_experience(ctx.bot.redis, user)
-        level, total = check_level(response)
+        response = await utils.get_experience(ctx.bot.redis, user)
+        level, total = utils.check_level(response)
 
         # Set up the embed.
         embed = Embed(
@@ -79,6 +73,64 @@ class Levels(commands.Cog):
         # Send the embed.
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def state(self, ctx):
+        print(self.voice.state)
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(
+            self,
+            member: Member,
+            before: VoiceState,
+            after: VoiceState):
+        """
+        """
+
+        voice = self.voice
+
+        # If they were previously eligible or they are eligible.
+        if voice.eligible_member(member) or voice.eligible(after):
+            bc = before.channel
+            ac = after.channel
+            # Refresh the state for the channel they were in, if there is one.
+            if bc:
+                await voice.refresh(bc)
+            # Refresh the state for the channel they are in, if there is one,
+            # only if the channel is not the same.
+            if ac and ac != bc:
+                await voice.refresh(ac)
+
+    @commands.Cog.listener()
+    async def on_member_update(
+            self,
+            before: Member,
+            after: Member):
+        """
+        """
+
+        voice = self.voice
+        ba = before.activity
+        aa = after.activity
+
+        # If their activity has changed.
+        if ba != aa:
+            bv = before.voice
+            av = after.voice
+
+            # If they were previously eligible or they are eligible.
+            if voice.eligible(bv) or voice.eligible(av):
+                bc = bv.channel
+                ac = av.channel
+
+                # Refresh the state for the channel they were in,
+                # if there is one.
+                if bc:
+                    await voice.refresh(bc)
+                # Refresh the state for the channel they are in,
+                # if there is one.
+                if ac:
+                    await voice.refresh(ac)
+
     @commands.Cog.listener()
     async def on_message(self, message: Message):
         """Message listener.
@@ -91,26 +143,26 @@ class Levels(commands.Cog):
         """
 
         # Preemptive checks.
-        if not check_database(self):
+        if not utils.check_database(self):
             return
         if message.author.bot:
             return
-        if (await is_blocked(self.bot.redis, message.author)):
+        if (await utils.is_blocked(self.bot.redis, message.author)):
             return
 
         # Award experience.
-        xp = await calculate_worth(
+        xp = await utils.calculate_worth(
             self.bot.redis,
             self.bot.dictionary,
             message)
-        new_xp = await set_experience(
+        new_xp = await utils.set_experience(
             self.bot.redis,
             message.author,
             offset=xp)
 
         old_xp = new_xp - xp
-        old_level, _ = check_level(old_xp)
-        new_level, _ = check_level(new_xp)
+        old_level, _ = utils.check_level(old_xp)
+        new_level, _ = utils.check_level(new_xp)
 
         if old_level >= new_level:
             return
