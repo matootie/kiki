@@ -13,12 +13,12 @@ References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#bot
 - https://aioredis.readthedocs.io/en/v1.3.0/api_reference.html#aioredis.create_redis_pool
 - http://pyenchant.github.io/pyenchant/#introduction
-"""
+"""  # noqa
 
 from socket import gaierror
 from aioredis import create_redis_pool
-from enchant import Dict
 from click import echo
+from discord.utils import find
 from discord.ext.commands import Bot
 from discord.ext.commands import Context
 from discord.ext.commands.errors import CommandNotFound
@@ -54,7 +54,6 @@ class Kiki(Bot):
         # Initialize attributes.
         self._redis_url = kwargs.get("redis_url")
         self.redis = None
-        self.dictionary = Dict("en")
         self.version = kwargs.get("version")
 
         # Run superclass initialization.
@@ -64,6 +63,12 @@ class Kiki(Bot):
         self.load_extension("kiki.plugins.info")
         self.load_extension("kiki.plugins.automod")
         self.load_extension("kiki.plugins.levels")
+
+    @property
+    def guild(self):
+        id = 558027628502712330
+        server = find(lambda x: x.id == id, self.guilds)
+        return server
 
     async def on_ready(self):
         """Discord Bot on ready.
@@ -106,16 +111,17 @@ class Kiki(Bot):
 
         References:
         - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.Bot.on_command_error
-        """
+        """  # noqa
 
-        # If the problem is that the command cannot be found, let the user know.
+        # If the problem is that the command cannot be found,
+        # let the user know.
         if isinstance(exception, CommandNotFound):
             await context.send("Unknown command.")
             return
 
         # If a command prerequisite check has failed, let the user know.
         if isinstance(exception, CheckFailure):
-            await context.send("Prerequisite checks for this command have failed. See `.info` for more insight.")
+            await context.send("Prerequisite checks for this command have failed. See `.info` for more insight.")  # noqa
             return
 
         # Otherwise, raise the exception.
