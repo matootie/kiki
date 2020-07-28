@@ -11,7 +11,7 @@ References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/extensions.html
 """
 
-from kiki.plugins.levels.cogs import Levels
+from kiki.plugins.levels.cogs import Text, Voice, Levels
 
 
 def setup(bot):
@@ -20,4 +20,6 @@ def setup(bot):
     Simple setup of the levels plugin.
     """
 
-    bot.add_cog(Levels(bot))
+    bot.add_cog(Text(bot))
+    bot.add_cog(Voice(bot))
+    bot.add_cog(Levels())
