@@ -25,6 +25,7 @@ class Automod(commands.Cog):
         """Initialize the Cog.
         """
 
+        self.bot = bot
         # Dictionary where keys are channel ID, values are role ID.
         # Eventually this will be moved to database.
         self.supported_channels = {
@@ -48,7 +49,19 @@ class Automod(commands.Cog):
             722140535133044787,
             722148256385335346,
             722148258516041779,
-            722148300660277248
+            722148300660277248,
+            725800015901098207,
+            725800019394822275,
+            725800021051572256,
+            725800024058888192,
+            725800917068415166,
+            725852723354009663,
+            725853438755471440,
+            725853029710168115,
+            725853264066904085,
+            725853325085507625,
+            725853358665236531,
+            739259679707889774
         ]
 
     @commands.command()

@@ -60,9 +60,9 @@ class Kiki(Bot):
         super().__init__(command_prefix=command_prefix, **kwargs)
 
         # Load all plugins.
-        self.load_extension("kiki.plugins.info")
-        self.load_extension("kiki.plugins.automod")
-        self.load_extension("kiki.plugins.levels")
+        # self.load_extension("kiki.plugins.info")
+        # self.load_extension("kiki.plugins.automod")
+        # self.load_extension("kiki.plugins.levels")
 
     @property
     def guild(self):
