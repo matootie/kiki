@@ -15,6 +15,7 @@ References:
 - http://pyenchant.github.io/pyenchant/#introduction
 """  # noqa
 
+import asyncio
 from socket import gaierror
 from aioredis import create_redis_pool
 from click import echo
@@ -52,8 +53,16 @@ class Kiki(Bot):
         """
 
         # Initialize attributes.
-        self._redis_url = kwargs.get("redis_url")
-        self.redis = None
+        redis_url = kwargs.get("redis_url")
+        loop = asyncio.get_event_loop()
+        if redis_url:
+            try:
+                self.redis = loop.run_until_complete(
+                    create_redis_pool(redis_url, encoding="utf-8"))
+            except gaierror:
+                self.redis = None
+        else:
+            self.redis = None
         self.version = kwargs.get("version")
 
         # Run superclass initialization.
@@ -82,18 +91,6 @@ class Kiki(Bot):
         # Announce version number.
         echo(f"Running Kiki bot {self.version}")
 
-        # Set a cleaner name for the URL.
-        url = self._redis_url
-
-        # Attempt to connect to Redis.
-        if url:
-            try:
-                self.redis = await create_redis_pool(url, encoding="utf-8")
-                echo(f"Successfully connected to Redis: {url}")
-            except gaierror:
-                echo(f"Unable to connect to Redis: {url}")
-                self.redis = None
-
         # Announce readiness.
         echo("Ready.")
 
@@ -121,7 +118,7 @@ class Kiki(Bot):
 
         # If a command prerequisite check has failed, let the user know.
         if isinstance(exception, CheckFailure):
-            await context.send("Prerequisite checks for this command have failed. See `.info` for more insight.")  # noqa
+            await context.send("Failed to run the requested command.")  # noqa
             return
 
         # Otherwise, raise the exception.

@@ -8,10 +8,10 @@ References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/cogs.html
 """
 
-import typing
 from discord.ext import commands
 from discord.utils import find
-from discord import Role
+
+from kiki.plugins.automod.utils import checks
 
 
 class Automod(commands.Cog):
@@ -34,97 +34,116 @@ class Automod(commands.Cog):
         }
         # List of available roles for users to join/leave as they please.
         # Eventually this will be moved to database.
-        self.supported_roles = [
-            673282506543464488,
-            700130836527317002,
-            703783696460939335,
-            673282438037897284,
-            673282603440406567,
-            708866612626718820,
-            712462587857600523,
-            717925373647519774,
-            722123884811386971,
-            721215716564533279,
-            722140497812127777,
-            722140535133044787,
-            722148256385335346,
-            722148258516041779,
-            722148300660277248,
-            725800015901098207,
-            725800019394822275,
-            725800021051572256,
-            725800024058888192,
-            725800917068415166,
-            725852723354009663,
-            725853438755471440,
-            725853029710168115,
-            725853264066904085,
-            725853325085507625,
-            725853358665236531,
-            739259679707889774
-        ]
+        # bot.get_emoji(id)
+        self.supported_roles = {
+            742046942107926609: {
+                "name": "Counter-Strike: Global Offensive",
+                "role": 673282506543464488,
+            },
+            742046517468332164: {
+                "name": "Valorant",
+                "role": 700130836527317002,
+            },
+            742046518248472617: {
+                "name": "Overwatch",
+                "role": 673282438037897284,
+            },
+            742046517875048559: {
+                "name": "Minecraft",
+                "role": 673282603440406567,
+            },
+            742046518395273276: {
+                "name": "Jackbox",
+                "role": 708866612626718820,
+            },
+            742048416418496523: {
+                "name": "League of Legends",
+                "role": 712462587857600523,
+            },
+            742080896794099834: {
+                "name": "Smite",
+                "role": 739259679707889774,
+            },
+            742080830137958484: {
+                "name": "Fall Guys",
+                "role": 740597562545012818,
+            },
+        }
+        self.role_message_id = 1234
 
     @commands.command()
-    async def list(self, ctx: commands.Context):
+    @commands.check(checks.check_admin)
+    async def spit(self, ctx: commands.Context):
         """List supported roles.
 
         Args:
             ctx: Discord.py context object.
         """
 
-        message = "Here's a list of supported roles:\n\n"
+        message = "**Games**\n"
+        emojis = []
 
-        for role_id in self.supported_roles:
-            role = find(lambda x: x.id == role_id, ctx.guild.roles)
-            if role:
-                message += f"\"{role.name}\"\n"
+        for eid, value in self.supported_roles.items():
+            emoji = self.bot.get_emoji(eid)
+            emojis.append(emoji)
+            message += f"\n{emoji} {value['name']} (<@&{value['role']}>)"
 
-        message += "\nYou can add roles using the `.join` command, "\
-            "specifying each role by mention or by full name (in quotes)."
+        message += "\n\nReact below with a game icon to join its corresponding role!"  # noqa
 
-        await ctx.send(message)
+        m = await ctx.send(message)
+        await self.__set_role_message_id(m.id)
+        for e in emojis:
+            await m.add_reaction(e)
 
-    @commands.command()
-    async def join(
-            self,
-            ctx: commands.Context,
-            roles: commands.Greedy[typing.Union[Role, str]]):
-        """Join supported roles.
+        print(self.role_message_id)
 
-        Args:
-            ctx: Discord.py context object.
-            roles: Collection of roles by mention or by name.
+    @commands.Cog.listener()
+    async def on_ready(self):
+        """
         """
 
-        r = []
-        for role in roles:
-            if type(role) == str:
-                role = find(lambda x: x.name == role, ctx.guild.roles)
-            if role and role.id in self.supported_roles:
-                r.append(role)
-        if r:
-            await ctx.author.add_roles(*r, reason="Subscribed to roles")
+        self.role_message_id = await self.__get_role_message_id()
+        print(self.role_message_id)
 
-    @commands.command()
-    async def leave(
-            self,
-            ctx: commands.Context,
-            roles: commands.Greedy[typing.Union[Role, str]]):
-        """Leave supported roles.
-
-        Args:
-            ctx: Discord.py context object.
-            roles: Collection of roles by mention or by name.
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        """
         """
 
-        r = []
-        for role in roles:
-            if type(role) == str:
-                role = find(lambda x: x.name == role, ctx.guild.roles)
-            if role.id in self.supported_roles:
-                r.append(role)
-        if r:
-            await ctx.author.remove_roles(*r, reason="Unsubscribed from roles")
+        message_id = payload.message_id
+
+        if message_id != self.role_message_id:
+            return
+
+        guild = find(lambda x: x.id == payload.guild_id, self.bot.guilds)
+        emoji_id = payload.emoji.id
+        user = guild.get_member(payload.user_id)
+        game = self.supported_roles[emoji_id]
+        role = find(lambda x: x.id == game["role"], guild.roles)
+        if role:
+            await user.add_roles(
+                role,
+                reason="Joined community through reaction")
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        """
+        """
+
+        message_id = payload.message_id
+
+        if message_id != self.role_message_id:
+            return
+
+        guild = find(lambda x: x.id == payload.guild_id, self.bot.guilds)
+        emoji_id = payload.emoji.id
+        user = guild.get_member(payload.user_id)
+        game = self.supported_roles[emoji_id]
+        role = find(lambda x: x.id == game["role"], guild.roles)
+        if role:
+            await user.remove_roles(
+                role,
+                reason="Left community through reaction")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -197,3 +216,19 @@ class Automod(commands.Cog):
             await member.add_roles(
                 role,
                 reason="Granting new user default role.")
+
+    async def __get_role_message_id(self) -> int:
+        """
+        """
+
+        redis = self.bot.redis
+        id_raw = await redis.get("automod:rmid")
+        return int(id_raw)
+
+    async def __set_role_message_id(self, rmid: int):
+        """
+        """
+
+        redis = self.bot.redis
+        self.role_message_id = rmid
+        await redis.set("automod:rmid", rmid)
