@@ -118,6 +118,8 @@ class Automod(commands.Cog):
         guild = find(lambda x: x.id == payload.guild_id, self.bot.guilds)
         emoji_id = payload.emoji.id
         user = guild.get_member(payload.user_id)
+        if user.bot:
+            return
         game = self.supported_roles[emoji_id]
         role = find(lambda x: x.id == game["role"], guild.roles)
         if role:
@@ -138,6 +140,8 @@ class Automod(commands.Cog):
         guild = find(lambda x: x.id == payload.guild_id, self.bot.guilds)
         emoji_id = payload.emoji.id
         user = guild.get_member(payload.user_id)
+        if user.bot:
+            return
         game = self.supported_roles[emoji_id]
         role = find(lambda x: x.id == game["role"], guild.roles)
         if role:
