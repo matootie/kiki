@@ -36,35 +36,35 @@ class Automod(commands.Cog):
         # Eventually this will be moved to database.
         # bot.get_emoji(id)
         self.supported_roles = {
-            742046942107926609: {
+            742115931542519810: {
                 "name": "Counter-Strike: Global Offensive",
                 "role": 673282506543464488,
             },
-            742046517468332164: {
+            742115929621790799: {
                 "name": "Valorant",
                 "role": 700130836527317002,
             },
-            742046518248472617: {
+            742115929906872329: {
                 "name": "Overwatch",
                 "role": 673282438037897284,
             },
-            742046517875048559: {
+            742115929957072988: {
                 "name": "Minecraft",
                 "role": 673282603440406567,
             },
-            742046518395273276: {
+            742115930187759679: {
                 "name": "Jackbox",
                 "role": 708866612626718820,
             },
-            742048416418496523: {
+            742115930196410558: {
                 "name": "League of Legends",
                 "role": 712462587857600523,
             },
-            742080896794099834: {
+            742116519919484928: {
                 "name": "Smite",
                 "role": 739259679707889774,
             },
-            742080830137958484: {
+            742115931714617404: {
                 "name": "Fall Guys",
                 "role": 740597562545012818,
             },
@@ -82,11 +82,12 @@ class Automod(commands.Cog):
 
         message = "**Games**\n"
         emojis = []
-
+        se = self.bot.util_guild.emojis
         for eid, value in self.supported_roles.items():
-            emoji = self.bot.get_emoji(eid)
-            emojis.append(emoji)
-            message += f"\n{emoji} {value['name']} (<@&{value['role']}>)"
+            emoji = find(lambda x: x.id == eid, se)
+            if emoji:
+                emojis.append(emoji)
+                message += f"\n{emoji} {value['name']} (<@&{value['role']}>)"
 
         message += "\n\nReact below with a game icon to join its corresponding role!"  # noqa
 

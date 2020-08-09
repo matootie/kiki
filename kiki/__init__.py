@@ -79,6 +79,12 @@ class Kiki(Bot):
         server = find(lambda x: x.id == id, self.guilds)
         return server
 
+    @property
+    def util_guild(self):
+        id = 742115522950201355
+        server = find(lambda x: x.id == id, self.guilds)
+        return server
+
     async def on_ready(self):
         """Discord Bot on ready.
 
