@@ -47,9 +47,7 @@ async function run() {
         ]
       }
     }
-
-    // [error]400 - {"embeds":["0"]}
-
+    
     await request(options);
   }
   catch (error) {
@@ -58,7 +56,3 @@ async function run() {
 }
 
 run()
-
-/*
-
-*/
