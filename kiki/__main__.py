@@ -10,7 +10,6 @@ This is the script you would use to interact with the bot server-side.
 
 from utils.cli import cli
 
-
 if __name__ == "__main__":
     # Call on the primary cli group.
     cli()

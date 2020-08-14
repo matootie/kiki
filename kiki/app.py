@@ -72,9 +72,6 @@ class Kiki(Bot):
         super().__init__(command_prefix=command_prefix)
 
         # Load all plugins
-        #self.load_extension("kiki.plugins.info")
-        #self.load_extension("kiki.plugins.automod")
-        #self.load_extension("kiki.plugins.levels")
 
     async def on_ready(self):
         """Discord Bot on ready.

@@ -8,7 +8,9 @@ import yaml
 from click import echo
 
 
-def load_config(file: str = "kiki.yml") -> typing.Dict[str, typing.Union[bool, int, str]]:
+def load_config(
+        file: str = "kiki.yml"
+) -> typing.Dict[str, typing.Union[bool, int, str]]:
     """Loads configuration data from file.
 
     This method is used to store convenient configuration data in a file
