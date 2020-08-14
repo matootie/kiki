@@ -16,8 +16,8 @@ from enchant import Dict
 from discord import User, Embed, Message, Member, VoiceState, VoiceChannel
 from discord.ext import commands
 from discord.utils import find
-from kiki.plugins.levels import utils
-from kiki.plugins.levels.utils.checks import check_database, check_admin
+from plugins.levels import utils
+from plugins.levels.utils.checks import check_database, check_admin
 
 
 class Voice(commands.Cog):

@@ -16,26 +16,29 @@ jobs:
         id: gv
         run: echo "::set-output name=version::${GITHUB_REF##*/}"
 
+      - name: Set version in configuration
+        run: sed -e s/'v0.0.0-demo'/'${{ steps.gv.outputs.version }}'/ kiki.yml > kiki.yml
+
       - name: Publish Image
         id: publish-image
-        uses: matootie/github-docker@v2.2.3
+        uses: matootie/github-docker@v3.0.0
         with:
-          accessToken: ${{ secrets.GITHUB_TOKEN }}
-          buildArg: |
-            VERSION=${{ steps.gv.outputs.version }}
+          accessToken: ${{ github.token }}
+          tag: |
+            ${{ steps.gv.outputs.version }}
+            latest
 
       - name: Save DigitalOcean Kubernetes Config
-        uses: matootie/dokube@v1.3.1
+        uses: matootie/dokube@v1.3.2
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           clusterName: yoiksoft
-          namespace: kiki
 
       - name: Update Deployment
-        run: kubectl set image deployment.apps/kiki kiki=${{ steps.publish-image.outputs.imageURL }}
+        run: kubectl -n kiki set image deployment.apps/kiki kiki=${{ steps.publish-image.outputs.imageURL }}:${{ steps.gv.outputs.version }}
 
       - name: Wait for Deployment
-        run: kubectl rollout status deployment/kiki -w
+        run: kubectl -n kiki rollout status deployment/kiki -w
 
       - name: Send out Webhook
         uses: ./.github/actions/kiki-release-notifier

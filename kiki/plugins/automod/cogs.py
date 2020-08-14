@@ -11,7 +11,7 @@ References:
 from discord.ext import commands
 from discord.utils import find
 
-from kiki.plugins.automod.utils import checks
+from plugins.automod.utils import checks
 
 
 class Automod(commands.Cog):

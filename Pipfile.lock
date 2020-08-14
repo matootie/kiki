@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "37e07bf57c6c7d37d1d55103b263c9da37ff498466c469b514a213ee40165cda"
+            "sha256": "71c67ad14068a5250ab1ace887cdcab04aff51915a3cec4b34f22a9c969dda11"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -73,12 +73,21 @@
             "index": "pypi",
             "version": "==7.1.2"
         },
-        "discord-py": {
+        "discord": {
+            "hashes": [
+                "sha256:9d4debb4a37845543bd4b92cb195bc53a302797333e768e70344222857ff1559",
+                "sha256:ff6653655e342e7721dfb3f10421345fd852c2a33f2cca912b1c39b3778a9429"
+            ],
+            "index": "pypi",
+            "py": "~=1.4.1",
+            "version": "==1.0.1"
+        },
+        "discord.py": {
             "hashes": [
                 "sha256:98ea3096a3585c9c379209926f530808f5fcf4930928d8cfb579d2562d119570",
                 "sha256:f9decb3bfa94613d922376288617e6a6f969260923643e2897f4540c34793442"
             ],
-            "index": "pypi",
+            "markers": "python_full_version >= '3.5.3'",
             "version": "==1.4.1"
         },
         "hiredis": {
@@ -163,16 +172,6 @@
             ],
             "markers": "python_version >= '3.5'",
             "version": "==4.7.6"
-        },
-        "pyenchant": {
-            "hashes": [
-                "sha256:8ca419921e79022b344581ef7baf2e23af5c20b3e56b2f3d5a0448bd5bf2662e",
-                "sha256:997465ab1f0dc9900b3bde0a1998c62ac08e64cc9a0870865d50de1e7d4b5afa",
-                "sha256:ce0915d7acd771fde6e8c2dce8ad0cb0e6f7c4fa8430cc96e3e7134e99aeb12f",
-                "sha256:fd490efd7ce46e461cbd905bf6e2fdd540d85f43973b296a743b4591bfbcca60"
-            ],
-            "index": "pypi",
-            "version": "==3.1.1"
         },
         "pyyaml": {
             "hashes": [
@@ -320,7 +319,7 @@
                 "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259",
                 "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==1.15.0"
         },
         "toml": {
@@ -354,7 +353,7 @@
                 "sha256:fc0fea399acb12edbf8a628ba8d2312f583bdbdb3335635db062fa98cf71fca4",
                 "sha256:fe460b922ec15dd205595c9b5b99e2f056fd98ae8f9f56b888e7a17dc2b757e7"
             ],
-            "markers": "python_version < '3.8' and implementation_name == 'cpython'",
+            "markers": "implementation_name == 'cpython' and python_version < '3.8'",
             "version": "==1.4.1"
         },
         "wrapt": {

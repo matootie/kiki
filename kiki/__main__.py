@@ -2,13 +2,13 @@
 
 This is the script you would use to interact with the bot server-side.
 
-    Typical usage example:
+  Typical usage example: |
 
-    $ python runner.py --help
-    $ python runner.py run --version v1.23.4-beta.5
+    $ python kiki --help
+    $ python kiki run
 """
 
-from kiki.utils.cli import cli
+from utils.cli import cli
 
 
 if __name__ == "__main__":

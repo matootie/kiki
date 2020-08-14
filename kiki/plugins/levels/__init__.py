@@ -11,7 +11,7 @@ References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/extensions.html
 """
 
-from kiki.plugins.levels.cogs import Text, Voice, Levels
+from plugins.levels.cogs import Text, Voice, Levels
 
 
 def setup(bot):
