@@ -5,7 +5,7 @@ on:
     types: [published]
 
 jobs:
-  release:
+  cd:
     name: Release
     runs-on: ubuntu-latest
     steps:

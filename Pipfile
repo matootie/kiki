@@ -5,7 +5,9 @@ verify_ssl = true
 
 [scripts]
 kiki = "python kiki run"
-lint = "yapf --style='{based_on_style: google}' --recursive --in-place kiki/"
+lint = "pylint --disable=C0301 kiki/"
+format = "yapf --style='{based_on_style: google}' --recursive --in-place kiki/"
+format-diff = "yapf --style='{based_on_style: google}' --recursive --diff kiki/"
 
 [dev-packages]
 pylint = "*"

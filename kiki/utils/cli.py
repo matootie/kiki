@@ -21,8 +21,6 @@ def cli():
     Simple grouping for all available command-line commands.
     """
 
-    pass
-
 
 @cli.command()
 def run():
@@ -35,7 +33,8 @@ def run():
     try:
         token = os.environ["KIKI_TOKEN"]
     except KeyError:
-        click.error_message("You must specify the bot token under KIKI_TOKEN.")
+        click.echo("You must specify the bot token under KIKI_TOKEN.")
+        return
 
     # Create and run Kiki.
     Kiki().run(token)

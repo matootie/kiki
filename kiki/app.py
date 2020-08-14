@@ -14,17 +14,14 @@ References:
 - https://aioredis.readthedocs.io/en/v1.3.0/api_reference.html#aioredis.create_redis_pool
 """
 
-import os
 import asyncio
 import socket
-import typing
 import aioredis
-import utils
 from click import echo
-from discord import Guild, Emoji
 from discord.ext.commands import Bot
 from discord.ext.commands import Context
 from discord.ext.commands import errors
+from .utils import load_config
 
 
 class Kiki(Bot):
@@ -48,7 +45,7 @@ class Kiki(Bot):
         """
 
         # Load configuration file
-        config = utils.load_config()
+        config = load_config()
         self.config = config
 
         # Set global attributes
@@ -104,7 +101,7 @@ class Kiki(Bot):
 
         References:
         - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.Bot.on_command_error
-        """
+        """  # noqa
 
         # When an appropriate command can not be found.
         if isinstance(exception, errors.CommandNotFound):

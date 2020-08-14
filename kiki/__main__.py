@@ -8,7 +8,7 @@ This is the script you would use to interact with the bot server-side.
     $ python kiki run
 """
 
-from utils.cli import cli
+from .utils.cli import cli
 
 if __name__ == "__main__":
     # Call on the primary cli group.

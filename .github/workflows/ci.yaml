@@ -3,8 +3,8 @@ name: Continuous Integration
 on: push
 
 jobs:
-  lint:
-    name: Lint
+  ci:
+    name: Lint and Format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -20,10 +20,8 @@ jobs:
           python -m pip install --upgrade pipenv
           python -m pipenv install --dev
 
-      - name: Lint
-        run: |
-          python -m pipenv run yapf \
-            --style='{based_on_style: google}' \
-            --recursive \
-            --diff \
-            kiki/
+      - name: Lint check
+        run: python -m pipenv lint
+
+      - name: Formatting check
+        run: python -m pipenv format-diff
