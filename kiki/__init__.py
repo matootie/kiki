@@ -4,7 +4,7 @@ Kiki bot is a subclass of Discord.py command-bot. This is where some
 additional custom functionality is initialized, and customizations are
 made before runtime.
 
-    Typical usage example:
+  Typical usage example: |
 
     kiki = Kiki()
     kiki.run("discord-bot-token")
@@ -13,77 +13,70 @@ References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#bot
 - https://aioredis.readthedocs.io/en/v1.3.0/api_reference.html#aioredis.create_redis_pool
 - http://pyenchant.github.io/pyenchant/#introduction
-"""  # noqa
+"""
 
+import os
 import asyncio
-from socket import gaierror
-from aioredis import create_redis_pool
+import socket
+import typing
+import aioredis
 from click import echo
-from discord.utils import find
+from discord import Guild, Emoji
 from discord.ext.commands import Bot
 from discord.ext.commands import Context
-from discord.ext.commands.errors import CommandNotFound
-from discord.ext.commands.errors import CheckFailure
+from discord.ext.commands import errors
+
+from kiki import utils
 
 
 class Kiki(Bot):
     """The Kiki bot.
 
-    Subclass of Discord.py command-bot. Houses some custom functionality
-    including a language dictionary and a connection to Redis for data storage.
-
-    Attributes:
-        redis: A connection to Redis, or None if no connection exists.
-        dictionary: An enchant language dictionary set to English.
-        version: The current running version of the bot.
+    Subclass of Discord.py command-bot, housing some custom functionality.
     """
 
-    def __init__(self, command_prefix: str = ".", **kwargs):
+    def __init__(self):
         """Initialize the custom bot.
 
         Class initializer, simply sets some default attributes and loads the
         default set of plugins.
 
         Args:
-            command_prefix: The desired command prefix for the bot.
-            kwargs: Any optional attributes to set.
+          command_prefix: The desired command prefix for the bot.
+          kwargs: Any optional attributes to set.
 
         References:
         - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#bot
         """
 
-        # Initialize attributes.
-        redis_url = kwargs.get("redis_url")
-        loop = asyncio.get_event_loop()
-        if redis_url:
-            try:
-                self.redis = loop.run_until_complete(
-                    create_redis_pool(redis_url, encoding="utf-8"))
-            except gaierror:
-                self.redis = None
-        else:
+        # Load configuration file
+        config = utils.load_config()
+        self.config = config
+
+        # Set global attributes
+        self.version = config.get("version", "v0.0.0-demo")
+
+        # Connect to database
+        redis_config = config.get("redis")
+        if redis_config:
+            redis_url = redis_config.get("url")
             self.redis = None
-        self.version = kwargs.get("version")
+            if redis_url:
+                try:
+                    loop = asyncio.get_event_loop()
+                    self.redis = loop.run_until_complete(
+                        aioredis.create_redis_pool(redis_url, encoding="utf-8"))
+                except (socket.gaierror, OSError):
+                    pass
 
-        # Run superclass initialization.
-        super().__init__(command_prefix=command_prefix, **kwargs)
+        # Run superclass initialization
+        command_prefix = config.get("prefix", ".")
+        super().__init__(command_prefix=command_prefix)
 
-        # Load all plugins.
-        self.load_extension("kiki.plugins.info")
-        self.load_extension("kiki.plugins.automod")
-        self.load_extension("kiki.plugins.levels")
-
-    @property
-    def guild(self):
-        id = 558027628502712330
-        server = find(lambda x: x.id == id, self.guilds)
-        return server
-
-    @property
-    def util_guild(self):
-        id = 742115522950201355
-        server = find(lambda x: x.id == id, self.guilds)
-        return server
+        # Load all plugins
+        #self.load_extension("kiki.plugins.info")
+        #self.load_extension("kiki.plugins.automod")
+        #self.load_extension("kiki.plugins.levels")
 
     async def on_ready(self):
         """Discord Bot on ready.
@@ -97,34 +90,30 @@ class Kiki(Bot):
         # Announce version number.
         echo(f"Running Kiki bot {self.version}")
 
-        # Announce readiness.
-        echo("Ready.")
-
     async def on_command_error(self, context: Context, exception: Exception):
         """Discord bot on command error.
 
         This event is called when a command raises an error.
 
         Args:
-            context: The Discord context object from when the error happened.
-            exception: The exception that was raised.
+          context: The Discord context object from when the error happened.
+          exception: The exception that was raised.
 
-        Raises:
-            The original exception, if it can not be dealt with silently.
+        Raises: |
+          The original exception, if it can not be dealt with silently.
 
         References:
         - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.Bot.on_command_error
-        """  # noqa
+        """
 
-        # If the problem is that the command cannot be found,
-        # let the user know.
-        if isinstance(exception, CommandNotFound):
+        # When an appropriate command can not be found.
+        if isinstance(exception, errors.CommandNotFound):
             await context.send("Unknown command.")
             return
 
-        # If a command prerequisite check has failed, let the user know.
-        if isinstance(exception, CheckFailure):
-            await context.send("Failed to run the requested command.")  # noqa
+        # When a prerequisite check for a command has failed.
+        if isinstance(exception, errors.CheckFailure):
+            await context.send("Failed to run the requested command.")
             return
 
         # Otherwise, raise the exception.

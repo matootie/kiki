@@ -31,29 +31,6 @@ class Voice(commands.Cog):
         self.bot = bot
         self.state = {}
 
-    @commands.command()
-    @commands.check(check_database)
-    @commands.check(check_admin)
-    async def allranks(
-            self,
-            ctx: commands.Context):
-        """
-        """
-
-        guild = ctx.guild
-        redis = self.bot.redis
-
-        string = ""
-        cursor = b"0"
-        while cursor:
-            cursor, keys = await redis.scan(cursor, match='xp:*')
-            for key in keys:
-                member = guild.get_member(int(key[3:]))
-                level = await utils.get_level(redis, member)
-                string += f"{member.name} :: {level}\n"
-
-        await ctx.send(string)
-
     @commands.Cog.listener()
     async def on_voice_state_update(
             self,
