@@ -21,7 +21,7 @@ jobs:
           python -m pipenv install --dev
 
       - name: Lint check
-        run: python -m pipenv lint
+        run: python -m pipenv run lint
 
       - name: Formatting check
-        run: python -m pipenv format-diff
+        run: python -m pipenv run format-diff
