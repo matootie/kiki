@@ -1,4 +1,4 @@
-"""Utils module.
+"""Utils module
 
 Top level of the kiki.utils module.
 """
@@ -11,7 +11,7 @@ from click import echo
 def load_config(
         file: str = "kiki.yml"
 ) -> typing.Dict[str, typing.Union[bool, int, str]]:
-    """Loads configuration data from file.
+    """Loads configuration data from file
 
     This method is used to store convenient configuration data in a file
     and load from that instead of hard-coding values or providing them

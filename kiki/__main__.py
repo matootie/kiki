@@ -1,4 +1,4 @@
-"""Entrypoint of the bot command-line interface.
+"""Entrypoint of the bot command-line interface
 
 This is the script you would use to interact with the bot server-side.
 

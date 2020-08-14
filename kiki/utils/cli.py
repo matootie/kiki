@@ -1,4 +1,4 @@
-"""Kiki CLI tools.
+"""Kiki CLI tools
 
 Initialization of the Click command line tool, as well as some basic level
 commands. There is no typical usage here as the runner script is the only that
@@ -16,7 +16,7 @@ from app import Kiki
 
 @click.group()
 def cli():
-    """Main CLI command group for Kiki bot.
+    """Main CLI command group for Kiki bot
 
     Simple grouping for all available command-line commands.
     """
@@ -26,7 +26,7 @@ def cli():
 
 @cli.command()
 def run():
-    """Run the bot.
+    """Run the bot
 
     Requires a Discord bot token to be specified in environment as KIKI_TOKEN.
     """

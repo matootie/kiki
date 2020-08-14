@@ -1,4 +1,4 @@
-"""The Kiki bot class.
+"""The Kiki bot class
 
 Kiki bot is a subclass of Discord.py command-bot. This is where some
 additional custom functionality is initialized, and customizations are
@@ -28,13 +28,13 @@ from discord.ext.commands import errors
 
 
 class Kiki(Bot):
-    """The Kiki bot.
+    """The Kiki bot
 
     Subclass of Discord.py command-bot, housing some custom functionality.
     """
 
     def __init__(self):
-        """Initialize the custom bot.
+        """Initialize the custom bot
 
         Class initializer, simply sets some default attributes and loads the
         default set of plugins.
@@ -74,7 +74,7 @@ class Kiki(Bot):
         # Load all plugins
 
     async def on_ready(self):
-        """Discord Bot on ready.
+        """Discord Bot on ready
 
         This event is called when the bot is fully ready.
 
@@ -91,7 +91,7 @@ class Kiki(Bot):
             file.write("Healthy")
 
     async def on_command_error(self, context: Context, exception: Exception):
-        """Discord bot on command error.
+        """Discord bot on command error
 
         This event is called when a command raises an error.
 
