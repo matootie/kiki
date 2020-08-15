@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [scripts]
+app = "uvicorn kiki.app:app"
 kiki = "python kiki run"
 lint = "pylint --disable=C0301 kiki/"
 format = "yapf --style='{based_on_style: google}' --recursive --in-place kiki/"
@@ -19,6 +20,8 @@ discord = {py = "~=1.4.1"}
 click = "~=7.1.2"
 aioredis = "~=1.3.1"
 pyyaml = "~=5.3.1"
+starlette = "~=0.13.8"
+uvicorn = "~=0.11.8"
 
 [requires]
 python_version = "3.7"

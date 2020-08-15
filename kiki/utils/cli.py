@@ -11,7 +11,7 @@ References:
 import os
 import click
 
-from app import Kiki
+from kiki import Kiki
 
 
 @click.group()

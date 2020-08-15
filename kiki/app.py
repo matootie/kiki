@@ -1,117 +1,56 @@
-"""The Kiki bot class
-
-Kiki bot is a subclass of Discord.py command-bot. This is where some
-additional custom functionality is initialized, and customizations are
-made before runtime.
-
-  Typical usage example: |
-
-    kiki = Kiki()
-    kiki.run("discord-bot-token")
-
-References:
-- https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#bot
-- https://aioredis.readthedocs.io/en/v1.3.0/api_reference.html#aioredis.create_redis_pool
+"""
 """
 
+import os
 import asyncio
-import socket
 import aioredis
-from click import echo
-from discord.ext.commands import Bot
-from discord.ext.commands import Context
-from discord.ext.commands import errors
+import socket
+from starlette.applications import Starlette
+from starlette.routing import Route
+from starlette.routing import PlainTextResponse
+
 from .utils import load_config
+from .kiki import Kiki
 
 
-class Kiki(Bot):
-    """The Kiki bot
+async def lifespan(app):
+    """Configure application companions
 
-    Subclass of Discord.py command-bot, housing some custom functionality.
+    Run an instance of Kiki bot with the application as well as an active
+    connection to Redis for session.
     """
 
-    def __init__(self):
-        """Initialize the custom bot
+    try:
+        token = os.environ["KIKI_TOKEN"]
+    except KeyError:
+        click.echo("You must specify the bot token under KIKI_TOKEN.")
+        exit()
 
-        Class initializer, simply sets some default attributes and loads the
-        default set of plugins.
+    config = load_config()
+    redis_config = config.get("redis")
+    if redis_config:
+        redis_url = redis_config.get("url", "redis://localhost")
+        try:
+            app.redis = await aioredis.create_redis_pool(
+                redis_url,
+                encoding="utf-8")
+        except (socket.gaierror, OSError):
+            app.redis = None
 
-        Args:
-          command_prefix: The desired command prefix for the bot.
-          kwargs: Any optional attributes to set.
+    kiki = Kiki(config=config)
+    app.kiki = kiki
+    setattr(kiki, "app", app)
 
-        References:
-        - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#bot
-        """
+    async def runner():
+        try:
+            await kiki.start(token)
+        finally:
+            await kiki.close()
 
-        # Load configuration file
-        config = load_config()
-        self.config = config
+    loop = asyncio.get_event_loop()
+    future = asyncio.ensure_future(runner(), loop=loop)
 
-        # Set global attributes
-        self.version = config.get("version", "v0.0.0-demo")
+    yield
 
-        # Connect to database
-        redis_config = config.get("redis")
-        if redis_config:
-            redis_url = redis_config.get("url")
-            self.redis = None
-            if redis_url:
-                try:
-                    loop = asyncio.get_event_loop()
-                    self.redis = loop.run_until_complete(
-                        aioredis.create_redis_pool(redis_url, encoding="utf-8"))
-                except (socket.gaierror, OSError):
-                    pass
 
-        # Run superclass initialization
-        command_prefix = config.get("prefix", ".")
-        super().__init__(command_prefix=command_prefix)
-
-        # Load all plugins
-
-    async def on_ready(self):
-        """Discord Bot on ready
-
-        This event is called when the bot is fully ready.
-
-        References:
-        - https://discordpy.readthedocs.io/en/latest/api.html#discord.on_ready
-        """
-
-        # Announce version number.
-        echo(f"Running Kiki bot {self.version}")
-
-        # Write to readiness file.
-        # This lets Kubernetes know the deployment has successfully started.
-        with open("/tmp/healthy", "w") as file:
-            file.write("Healthy")
-
-    async def on_command_error(self, context: Context, exception: Exception):
-        """Discord bot on command error
-
-        This event is called when a command raises an error.
-
-        Args:
-          context: The Discord context object from when the error happened.
-          exception: The exception that was raised.
-
-        Raises: |
-          The original exception, if it can not be dealt with silently.
-
-        References:
-        - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.Bot.on_command_error
-        """  # noqa
-
-        # When an appropriate command can not be found.
-        if isinstance(exception, errors.CommandNotFound):
-            await context.send("Unknown command.")
-            return
-
-        # When a prerequisite check for a command has failed.
-        if isinstance(exception, errors.CheckFailure):
-            await context.send("Failed to run the requested command.")
-            return
-
-        # Otherwise, raise the exception.
-        raise exception
+app = Starlette(lifespan=lifespan)
