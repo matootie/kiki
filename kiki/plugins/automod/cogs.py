@@ -217,12 +217,15 @@ class Automod(commands.Cog):
         folk = find(lambda x: x.name == "folk", member.guild.roles)
         tourist = find(lambda x: x.id == 717586013534421002, member.guild.roles)
 
-        # Assign the role, if it was found.
-        if role:
+        # Assign the roles, if they were found.
+        if folk:
             await member.add_roles(
-                role,
-                tourist,
+                folk,
                 reason="Granting new user default role.")
+        if tourist:
+            await member.add_roles(
+                tourist,
+                reason="Granting new user default ranking.")
 
     async def __get_role_message_id(self) -> int:
         """
