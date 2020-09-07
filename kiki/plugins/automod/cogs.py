@@ -68,16 +68,15 @@ class Automod(commands.Cog):
                 "name": "Fall Guys",
                 "role": 740597562545012818,
             },
+            752582580808974367: {
+                "name": "Among Us",
+                "role": 752582878629724161,
+            },
         }
         self.role_message_id = 1234
 
-    @commands.command()
-    @commands.check(checks.check_admin)
-    async def spit(self, ctx: commands.Context):
-        """List supported roles.
-
-        Args:
-            ctx: Discord.py context object.
+    def __build_message_string(self):
+        """
         """
 
         message = "**Games**\n"
@@ -91,20 +90,39 @@ class Automod(commands.Cog):
 
         message += "\n\nReact below with a game icon to join its corresponding role!"  # noqa
 
+        return message, emojis
+
+    @commands.command()
+    @commands.check(checks.check_admin)
+    async def spit(self, ctx: commands.Context):
+        """List supported roles.
+
+        Args:
+            ctx: Discord.py context object.
+        """
+
+        message, emojis = self.__build_message_string()
+
         m = await ctx.send(message)
         await self.__set_role_message_id(m.id)
         for e in emojis:
             await m.add_reaction(e)
-
-        print(self.role_message_id)
 
     @commands.Cog.listener()
     async def on_ready(self):
         """
         """
 
-        self.role_message_id = await self.__get_role_message_id()
-        print(self.role_message_id)
+        role_message_id = await self.__get_role_message_id()
+        self.role_message_id = role_message_id
+
+        # Rebuild message
+        c = await self.bot.fetch_channel(558086891652775936)
+        m = await c.fetch_message(role_message_id)
+        message, emojis = self.__build_message_string()
+        await m.edit(content=message)
+        for e in emojis:
+            await m.add_reaction(e)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
