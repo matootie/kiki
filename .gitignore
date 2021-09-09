@@ -1,6 +1,7 @@
 .vscode/
 manifests/secret*
 node_modules/
+requirements.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
