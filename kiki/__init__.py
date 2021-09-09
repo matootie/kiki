@@ -15,8 +15,7 @@ References:
 """  # noqa
 
 import asyncio
-from socket import gaierror
-from aioredis import create_redis_pool
+import aioredis
 from click import echo
 from discord.utils import find
 from discord.ext.commands import Bot
@@ -54,12 +53,10 @@ class Kiki(Bot):
 
         # Initialize attributes.
         redis_url = kwargs.get("redis_url")
-        loop = asyncio.get_event_loop()
         if redis_url:
             try:
-                self.redis = loop.run_until_complete(
-                    create_redis_pool(redis_url, encoding="utf-8"))
-            except gaierror:
+                self.redis = aioredis.from_url(redis_url, encoding="utf-8", decode_responses=True)
+            except:
                 self.redis = None
         else:
             self.redis = None
