@@ -9,6 +9,7 @@ bot = "python runner.py run"
 [packages]
 aioredis = "~=2.0.0"
 "discord.py" = "~=1.7.3"
+click = "~=8.0.1"
 
 [requires]
 python_version = "3.9"
