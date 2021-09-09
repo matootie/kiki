@@ -1,0 +1,48 @@
+name: Deploy
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install Pipenv
+        run: pip install -U pipenv
+
+      - name: Generate requirements.txt
+        run: pipenv lock -r > requirements.txt
+
+      - name: Get version
+        id: gv
+        run: echo "::set-output name=version::${GITHUB_REF##*/}"
+
+      - name: Set version in code
+        env:
+          VERSION: ${{ steps.gv.outputs.version }}
+        run: sed -i "s/__version__ = None/__version__ = \"$VERSION\"/g" kiki/__init__.py
+
+      - name: Log in
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:login
+
+      - name: Build and push image
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:push worker --app kikiandriki
+
+      - name: Release
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:release worker --app kikiandriki
