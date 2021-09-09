@@ -41,9 +41,9 @@ class Info(commands.Cog):
 
         # Set the author of the embed.
         embed.set_author(
-            name="Kikiriki Studios Canada",
+            name="Kiki & Riki",
             url="https://github.com/matootie/kiki",
-            icon_url="https://cdn.discordapp.com/attachments/604373743837511693/653741067904221231/icon_circle_variant_1000x1000.png")  # noqa
+            icon_url="https://cdn.discordapp.com/icons/558027628502712330/27a8e964b8c8f68a64e158afb82fbf3e.png?size=128")  # noqa
 
         # Set a footer for the embed.
         embed.set_footer(text="Report any issues to an admin.")

@@ -12,7 +12,6 @@ made before runtime.
 References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#bot
 - https://aioredis.readthedocs.io/en/v1.3.0/api_reference.html#aioredis.create_redis_pool
-- http://pyenchant.github.io/pyenchant/#introduction
 """  # noqa
 
 import asyncio
@@ -26,6 +25,9 @@ from discord.ext.commands.errors import CommandNotFound
 from discord.ext.commands.errors import CheckFailure
 
 
+__version__ = None
+
+
 class Kiki(Bot):
     """The Kiki bot.
 
@@ -34,8 +36,6 @@ class Kiki(Bot):
 
     Attributes:
         redis: A connection to Redis, or None if no connection exists.
-        dictionary: An enchant language dictionary set to English.
-        version: The current running version of the bot.
     """
 
     def __init__(self, command_prefix: str = ".", **kwargs):
@@ -63,15 +63,15 @@ class Kiki(Bot):
                 self.redis = None
         else:
             self.redis = None
-        self.version = kwargs.get("version")
+        self.version = __version__ or "UNOFFICIAL VERSION"
 
         # Run superclass initialization.
         super().__init__(command_prefix=command_prefix, **kwargs)
 
         # Load all plugins.
         self.load_extension("kiki.plugins.info")
-        self.load_extension("kiki.plugins.automod")
-        self.load_extension("kiki.plugins.levels")
+        # self.load_extension("kiki.plugins.automod")
+        # self.load_extension("kiki.plugins.levels")
 
     @property
     def guild(self):

@@ -25,8 +25,7 @@ def cli():
 
 
 @cli.command()
-@click.option("-V", "--version", "version")
-def run(version: str = "v0.1.0-alpha"):
+def run():
     """Run the bot.
 
     Requires a Discord bot token to be specified in environment as KIKI_TOKEN.
@@ -42,5 +41,5 @@ def run(version: str = "v0.1.0-alpha"):
     redis_url = os.environ.get("REDIS_URL")
 
     # Create and run Kiki.
-    kiki = Kiki(redis_url=redis_url, version=version)
+    kiki = Kiki(redis_url=redis_url)
     kiki.run(token)

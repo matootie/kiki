@@ -12,7 +12,6 @@ import typing
 import math
 
 from datetime import datetime
-from enchant import Dict
 from discord import User, Embed, Message, Member, VoiceState, VoiceChannel
 from discord.ext import commands
 from discord.utils import find
@@ -296,7 +295,6 @@ class Text(commands.Cog):
         """
 
         self.bot = bot
-        self.dictionary = Dict("en")
 
     @commands.Cog.listener()
     async def on_message(
@@ -366,7 +364,6 @@ class Text(commands.Cog):
         """
 
         redis = self.bot.redis
-        dictionary = self.dictionary
 
         # Parse out extra spaces.
         content = message.content
@@ -380,8 +377,7 @@ class Text(commands.Cog):
         # Collect a set of words.
         words = set(
             [word.lower()
-             for word in message.split(" ")
-             if dictionary.check(word)])
+             for word in message.split(" ")])
         # Determine the valid words by checking whether they exist in the
         # blocked set.
         valid_words = []
