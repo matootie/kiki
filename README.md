@@ -1,13 +1,7 @@
 # Kiki
 
-Kiki, the official Kikiriki Discord server companion chat bot, is a modular Discord chatbot, using plugins to perform tasks.
+Kiki is the official Kiki & Riki Discord server companion chat bot.
 
-[![License](https://img.shields.io/github/license/matootie/kiki)](https://raw.githubusercontent.com/matootie/kiki/master/LICENSE)
-
-[![GitHub release](https://img.shields.io/github/release/matootie/kiki)](https://github.com/matootie/kiki/releases/latest)
-[![GitHub Release Date](https://img.shields.io/github/release-date/matootie/kiki)](https://github.com/matootie/kiki/releases/latest)
-
-[![GitHub issues](https://img.shields.io/github/issues/matootie/kiki)](https://github.com/matootie/kiki/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/matootie/kiki)](https://github.com/matootie/kiki/pulls)
+The bot aggregates data from the Discord server for fun and interactive uses on our website. For example, collecting and awarding experience points to active members of the community.
 
 To contribute, please read the [contributing guidelines](CONTRIBUTING.md).

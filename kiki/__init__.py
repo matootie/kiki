@@ -14,15 +14,13 @@ References:
 - https://aioredis.readthedocs.io/en/v1.3.0/api_reference.html#aioredis.create_redis_pool
 """  # noqa
 
-import asyncio
 import aioredis
-from click import echo
 from discord.utils import find
 from discord.ext.commands import Bot
 from discord.ext.commands import Context
+from discord.ext.commands import when_mentioned
 from discord.ext.commands.errors import CommandNotFound
 from discord.ext.commands.errors import CheckFailure
-
 
 __version__ = None
 
@@ -36,12 +34,11 @@ class Kiki(Bot):
     Attributes:
         redis: A connection to Redis, or None if no connection exists.
     """
-
-    def __init__(self, command_prefix: str = ".", **kwargs):
+    def __init__(self, **kwargs):
         """Initialize the custom bot.
 
         Class initializer, simply sets some default attributes and loads the
-        default set of plugins.
+        default set of modules.
 
         Args:
             command_prefix: The desired command prefix for the bot.
@@ -55,7 +52,9 @@ class Kiki(Bot):
         redis_url = kwargs.get("redis_url")
         if redis_url:
             try:
-                self.redis = aioredis.from_url(redis_url, encoding="utf-8", decode_responses=True)
+                self.redis = aioredis.from_url(redis_url,
+                                               encoding="utf-8",
+                                               decode_responses=True)
             except:
                 self.redis = None
         else:
@@ -63,12 +62,12 @@ class Kiki(Bot):
         self.version = __version__ or "UNOFFICIAL VERSION"
 
         # Run superclass initialization.
-        super().__init__(command_prefix=command_prefix, **kwargs)
+        super().__init__(command_prefix=when_mentioned,
+                         help_command=None,
+                         **kwargs)
 
-        # Load all plugins.
-        self.load_extension("kiki.plugins.info")
-        # self.load_extension("kiki.plugins.automod")
-        # self.load_extension("kiki.plugins.levels")
+        # Load all modules.
+        self.load_extension("kiki.modules.info")
 
     @property
     def guild(self):
@@ -92,10 +91,10 @@ class Kiki(Bot):
         """
 
         # Announce version number.
-        echo(f"Running Kiki bot {self.version}")
+        print(f"Running Kiki bot {self.version}")
 
         # Announce readiness.
-        echo("Ready.")
+        print("Ready.")
 
     async def on_command_error(self, context: Context, exception: Exception):
         """Discord bot on command error.
@@ -113,15 +112,8 @@ class Kiki(Bot):
         - https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.Bot.on_command_error
         """  # noqa
 
-        # If the problem is that the command cannot be found,
-        # let the user know.
+        # Pass if the command was simply not found.
         if isinstance(exception, CommandNotFound):
-            await context.send("Unknown command.")
-            return
-
-        # If a command prerequisite check has failed, let the user know.
-        if isinstance(exception, CheckFailure):
-            await context.send("Failed to run the requested command.")  # noqa
             return
 
         # Otherwise, raise the exception.

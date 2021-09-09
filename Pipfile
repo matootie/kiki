@@ -4,12 +4,17 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [scripts]
-bot = "python runner.py run"
+bot = "python run.py"
 
 [packages]
 aioredis = "~=2.0.0"
 "discord.py" = "~=1.7.3"
-click = "~=8.0.1"
 
 [requires]
 python_version = "3.9"
+
+[dev-packages]
+yapf = "*"
+
+[pipenv]
+allow_prereleases = true

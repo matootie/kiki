@@ -6,6 +6,11 @@ LICENSE
 .vscode/
 .env
 manifests/
+Pipfile
+Pipfile.lock
+heroku.yml
+.env
+.env.example
 
 .dockerignore
 Dockerfile
