@@ -15,10 +15,10 @@ References:
 """  # noqa
 
 import aioredis
-from discord.utils import find
 from discord.ext.commands import Bot
 from discord.ext.commands import Context
 from discord.ext.commands import when_mentioned
+from discord.ext.commands import command
 from discord.ext.commands.errors import CommandNotFound
 from discord.ext.commands.errors import CheckFailure
 
@@ -67,18 +67,18 @@ class Kiki(Bot):
                          **kwargs)
 
         # Load all modules.
+        self.load_extension("kiki.modules.admin")
         self.load_extension("kiki.modules.info")
+        self.load_extension("kiki.modules.levels")
 
     @property
     def guild(self):
-        id = 558027628502712330
-        server = find(lambda x: x.id == id, self.guilds)
+        server = self.get_guild(604373743837511691)
         return server
 
     @property
     def util_guild(self):
-        id = 742115522950201355
-        server = find(lambda x: x.id == id, self.guilds)
+        server = self.get_guild(742115522950201355)
         return server
 
     async def on_ready(self):
