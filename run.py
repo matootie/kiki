@@ -10,7 +10,8 @@ if __name__ == "__main__":
 
     # Load the optional Redis URL from environment.
     redis_url = os.environ.get("REDIS_URL")
+    redis_pass = os.environ.get("REDIS_PASS")
 
     # Create and run Kiki.
-    kiki = Kiki(redis_url=redis_url)
+    kiki = Kiki(redis_url=redis_url, redis_pass=redis_pass)
     kiki.run(token)

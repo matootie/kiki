@@ -14,13 +14,13 @@ References:
 - https://aioredis.readthedocs.io/en/v1.3.0/api_reference.html#aioredis.create_redis_pool
 """  # noqa
 
+import asyncio
 import aioredis
+from socket import gaierror
 from discord.ext.commands import Bot
 from discord.ext.commands import Context
 from discord.ext.commands import when_mentioned
-from discord.ext.commands import command
 from discord.ext.commands.errors import CommandNotFound
-from discord.ext.commands.errors import CheckFailure
 
 __version__ = None
 
@@ -50,12 +50,16 @@ class Kiki(Bot):
 
         # Initialize attributes.
         redis_url = kwargs.get("redis_url")
+        redis_pass = kwargs.get("redis_pass")
+        loop = asyncio.get_event_loop()
         if redis_url:
             try:
-                self.redis = aioredis.from_url(redis_url,
-                                               encoding="utf-8",
-                                               decode_responses=True)
-            except:
+                self.redis = loop.run_until_complete(
+                    aioredis.from_url(redis_url,
+                                      password=redis_pass,
+                                      encoding="utf-8",
+                                      decode_responses=True))
+            except gaierror:
                 self.redis = None
         else:
             self.redis = None
