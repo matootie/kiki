@@ -45,5 +45,6 @@ class Levels(commands.Cog):
             return
 
         today = str(date.today())
-        await redis.zincrby(f"{today}:messages", 1, author.id)
-        await redis.zincrby("all:messages", 1, author.id)
+        await redis.zincrby(f"messages:{today}", 1, author.id)
+        await redis.zincrby("messages:all", 1, author.id)
+        await redis.zincrby(f"messages:{author.id}", 1, today)

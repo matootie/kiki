@@ -1,0 +1,37 @@
+<user> = The ID of the user who is triggering the action.
+
+KEY -> messages:all
+  Sorted Set ->
+    Member: <user>
+    Score: message count
+- See top users all time.
+  - Top 3 users all time, with their scores.
+      ZREVRANGE messages:all 0 2 WITHSCORES
+  - Top 10 users all time.
+      ZREVRANGE messages:all 0 9
+- See where user places all time (ranking).
+  - Check user rank all time. Increment by 1 (0 start).
+      ZREVRANK messages:all <user>
+
+KEY -> messages:2020-12-25
+  Sorted Set ->
+    Member: <user>
+    Score: message count
+- See top users for specific day.
+  - Top 3 users on December 25th, with their scores.
+      ZREVRANGE messages:2020-12-25 0 2 WITHSCORES
+  - Top 10 users on Decembed 27th.
+      ZREVRANGE messages:2020-12-27 0 9
+- See where user places on a given day (ranking).
+  - Check user rank on December 25th. Increment by 1 (0 start).
+      ZREVRANK messages:2020-12-25 <user>
+
+KEY -> messages:<user>
+  Sorted Set ->
+    Member: 2020-12-25
+    Score: message count
+- See user activity over time.
+    ???
+- See most active days.
+  - Top 3 days ranked my messages sent, with their scores.
+    ZREVRANGE messages:<user> 0 2 WITHSCORES
