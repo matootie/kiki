@@ -8,7 +8,8 @@ References:
 - https://discordpy.readthedocs.io/en/latest/ext/commands/cogs.html
 """
 
-from datetime import date
+import pytz
+from datetime import datetime
 from aioredis import Redis
 from discord.ext import commands
 from discord.message import Message
@@ -44,7 +45,13 @@ class Levels(commands.Cog):
         if message.channel.id != 793970769842536458:
             return
 
-        today = str(date.today())
+        # Get the time in UTC.
+        now_utc = pytz.utc.localize(datetime.now())
+        # Convert UTC time to Toronto time.
+        now_local = now_utc.astimezone(pytz.timezone("America/Toronto"))
+        # Stringify the date.
+        today = now_local.date().isoformat()
+
         await redis.zincrby(f"messages:{today}", 1, author.id)
         await redis.zincrby("messages:all", 1, author.id)
         await redis.zincrby(f"messages:{author.id}", 1, today)
